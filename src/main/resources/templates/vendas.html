@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Estoque Inox</title>
+    <title>Vendas - Estoque Inox</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -11,17 +11,15 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-                <section class="text-center mb-4">
-                    <h1 class="fw-bold mb-3">Estoque Inox</h1>
-                    <p class="lead text-secondary mb-0">
-                        Controle simples de estoque e vendas para bijuterias de aço inox.
-                    </p>
-                </section>
-
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4 text-center">
-                        <p class="mb-4 fs-5">Sistema em desenvolvimento.</p>
-                        <a th:href="@{/login}" class="btn btn-primary px-4">Entrar</a>
+                    <div class="card-body p-4">
+                        <h1 class="h3 fw-bold mb-3">Area de vendas</h1>
+                        <p class="text-secondary mb-3">Pagina simples para validar acesso de ADMIN e VENDEDORA.</p>
+                        <p class="mb-4">
+                            Usuario: <strong th:text="${username}">usuario</strong><br>
+                            Perfil: <strong th:text="${roles}">PERFIL</strong>
+                        </p>
+                        <a th:href="@{/dashboard}" class="btn btn-primary w-100">Voltar ao painel</a>
                     </div>
                 </div>
             </div>
