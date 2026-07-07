@@ -111,6 +111,26 @@ public class EstoqueService {
         ));
     }
 
+    public void registrarEstornoPorCancelamento(Produto produto, Integer quantidade, Long vendaId, String motivo, String username) {
+        if (quantidade == null || quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade cancelada deve ser maior que zero.");
+        }
+
+        int estoqueAnterior = produto.getQuantidadeEstoque();
+        int estoquePosterior = estoqueAnterior + quantidade;
+        produto.setQuantidadeEstoque(estoquePosterior);
+
+        movimentacaoEstoqueRepository.save(new MovimentacaoEstoque(
+                produto,
+                TipoMovimentacaoEstoque.CANCELAMENTO,
+                quantidade,
+                estoqueAnterior,
+                estoquePosterior,
+                montarObservacaoCancelamento(vendaId, motivo),
+                username
+        ));
+    }
+
     private Produto buscarProduto(Long produtoId) {
         return produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto nao encontrado."));
@@ -121,5 +141,13 @@ public class EstoqueService {
             return null;
         }
         return observacao.trim();
+    }
+
+    private String montarObservacaoCancelamento(Long vendaId, String motivo) {
+        String observacao = "Cancelamento da venda #" + vendaId;
+        if (motivo != null && !motivo.isBlank()) {
+            observacao += " - motivo: " + motivo.trim();
+        }
+        return observacao;
     }
 }

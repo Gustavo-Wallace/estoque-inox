@@ -13,7 +13,7 @@
             <div class="col-12 col-lg-8">
                 <header class="mb-4">
                     <h1 class="fw-bold mb-2">Estoque Inox</h1>
-                    <p class="lead text-secondary mb-3">Bem-vindo ao painel</p>
+                    <p class="lead text-secondary mb-3" th:text="${isAdmin} ? 'Painel administrativo' : 'Painel de vendas'">Painel</p>
                     <div class="d-flex flex-column flex-sm-row gap-2">
                         <span class="badge text-bg-light border text-secondary align-self-start">
                             Usuario: <span th:text="${username}">usuario</span>
@@ -27,16 +27,16 @@
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <a th:href="@{/vendas/nova}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Nova venda</h2>
-                                <p class="text-secondary mb-0">Registrar venda simples e baixar estoque.</p>
+                                <p class="text-secondary mb-0">Registrar venda simples.</p>
                             </div>
                         </a>
                     </div>
 
                     <div class="col-12 col-md-6">
                         <a th:href="@{/vendas}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2" th:text="${isAdmin} ? 'Vendas' : 'Minhas vendas'">Vendas</h2>
                                 <p class="text-secondary mb-0">Consultar vendas registradas.</p>
                             </div>
@@ -45,7 +45,7 @@
 
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin/produtos}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Produtos</h2>
                                 <p class="text-secondary mb-0">Cadastrar e editar produtos.</p>
                             </div>
@@ -54,8 +54,8 @@
 
                     <div class="col-12 col-md-6" th:unless="${isAdmin}">
                         <a th:href="@{/produtos}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
-                                <h2 class="h5 text-dark mb-2">Produtos</h2>
+                            <div class="card-body p-4 py-5">
+                                <h2 class="h5 text-dark mb-2">Consulta de produtos</h2>
                                 <p class="text-secondary mb-0">Consultar produtos cadastrados.</p>
                             </div>
                         </a>
@@ -63,7 +63,7 @@
 
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin/categorias}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Categorias</h2>
                                 <p class="text-secondary mb-0">Cadastrar e editar categorias.</p>
                             </div>
@@ -72,7 +72,7 @@
 
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin/estoque}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Estoque</h2>
                                 <p class="text-secondary mb-0">Registrar entradas, ajustes e consultar histórico.</p>
                             </div>
@@ -81,7 +81,7 @@
 
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
+                            <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Area administrativa</h2>
                                 <p class="text-secondary mb-0">Disponivel apenas para ADMIN.</p>
                             </div>
@@ -91,7 +91,7 @@
 
                 <form th:action="@{/logout}" method="post" class="mt-4">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button type="submit" class="btn btn-outline-danger w-100">Sair</button>
+                    <button type="submit" class="btn btn-outline-danger btn-lg w-100">Sair</button>
                 </form>
             </div>
         </div>

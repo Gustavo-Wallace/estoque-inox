@@ -61,6 +61,14 @@ public class Venda {
     @Column(nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
+    private LocalDateTime canceladaEm;
+
+    @Column(length = 100)
+    private String usuarioCancelamento;
+
+    @Column(length = 255)
+    private String motivoCancelamento;
+
     public Venda() {
     }
 
@@ -123,5 +131,31 @@ public class Venda {
 
     public LocalDateTime getCriadoEm() {
         return criadoEm;
+    }
+
+    public LocalDateTime getCanceladaEm() {
+        return canceladaEm;
+    }
+
+    public String getUsuarioCancelamento() {
+        return usuarioCancelamento;
+    }
+
+    public String getMotivoCancelamento() {
+        return motivoCancelamento;
+    }
+
+    public void cancelar(String username, String motivoCancelamento) {
+        status = StatusVenda.CANCELADA;
+        canceladaEm = LocalDateTime.now();
+        usuarioCancelamento = username;
+        this.motivoCancelamento = normalizarMotivo(motivoCancelamento);
+    }
+
+    private String normalizarMotivo(String motivoCancelamento) {
+        if (motivoCancelamento == null || motivoCancelamento.isBlank()) {
+            return null;
+        }
+        return motivoCancelamento.trim();
     }
 }

@@ -4,5 +4,6 @@ public enum TipoMovimentacaoEstoque {
     ENTRADA,
     AJUSTE_POSITIVO,
     AJUSTE_NEGATIVO,
-    VENDA
+    VENDA,
+    CANCELAMENTO
 }

@@ -6,11 +6,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import br.com.estoqueinox.dto.CancelamentoVendaForm;
 import br.com.estoqueinox.dto.VendaForm;
 import br.com.estoqueinox.model.FormaPagamento;
+import br.com.estoqueinox.model.Venda;
 import br.com.estoqueinox.service.VendaService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -31,6 +34,7 @@ public class VendaController {
                 ? vendaService.listarTodas()
                 : vendaService.listarPorUsuario(authentication.getName()));
         model.addAttribute("isAdmin", admin);
+        model.addAttribute("username", authentication.getName());
         return "vendas";
     }
 
@@ -68,6 +72,57 @@ public class VendaController {
             adicionarOpcoesFormulario(model);
             return "venda-form";
         }
+    }
+
+    @GetMapping("/vendas/{id}/cancelar")
+    public String cancelar(
+            @PathVariable Long id,
+            Authentication authentication,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        boolean admin = isAdmin(authentication);
+
+        try {
+            Venda venda = vendaService.buscarParaCancelamento(id, authentication.getName(), admin);
+            model.addAttribute("venda", venda);
+            model.addAttribute("cancelamentoVendaForm", new CancelamentoVendaForm());
+            return "venda-cancelar";
+        } catch (IllegalArgumentException | EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+            return "redirect:/vendas";
+        }
+    }
+
+    @PostMapping("/vendas/{id}/cancelar")
+    public String processarCancelamento(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("cancelamentoVendaForm") CancelamentoVendaForm form,
+            BindingResult result,
+            Authentication authentication,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        boolean admin = isAdmin(authentication);
+
+        if (result.hasErrors()) {
+            try {
+                model.addAttribute("venda", vendaService.buscarParaCancelamento(id, authentication.getName(), admin));
+                return "venda-cancelar";
+            } catch (IllegalArgumentException | EntityNotFoundException ex) {
+                redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+                return "redirect:/vendas";
+            }
+        }
+
+        try {
+            vendaService.cancelarVenda(id, form.getMotivoCancelamento(), authentication.getName(), admin);
+            redirectAttributes.addFlashAttribute("sucesso", "Venda cancelada com sucesso.");
+        } catch (IllegalArgumentException | EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+        }
+
+        return "redirect:/vendas";
     }
 
     private void adicionarOpcoesFormulario(Model model) {

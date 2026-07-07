@@ -94,12 +94,27 @@ Password:
 
 1. Acesse `/login` com `admin/admin123`.
 2. Entre em `/vendas/nova`.
-3. Registre uma venda de um produto ativo com estoque.
-4. Confira a venda em `/vendas`.
-5. Confira a baixa de estoque em `/produtos` ou `/admin/produtos`.
-6. Confira a movimentação `VENDA` em `/admin/estoque`.
-7. Tente vender uma quantidade maior que o estoque e confirme a mensagem de erro.
+3. Use a busca para filtrar produto por código ou nome.
+4. Escolha o produto, altere a quantidade e confira o resumo com total estimado.
+5. Registre uma venda de um produto ativo com estoque.
+6. Confira a venda em `/vendas`.
+7. Confira a baixa de estoque em `/produtos` ou `/admin/produtos`.
+8. Confira a movimentação `VENDA` em `/admin/estoque`.
+9. Tente vender uma quantidade maior que o estoque e confirme a mensagem de erro.
+10. Acesse `/login` com `vendedora/venda123`.
+11. Registre uma venda em `/vendas/nova`.
+12. Confirme que `/vendas` mostra apenas as vendas dessa vendedora.
+13. Confirme que `/admin/estoque`, `/admin/produtos` e `/admin/categorias` retornam acesso negado.
+
+## Teste manual de cancelamento de venda
+
+1. Acesse `/login` com `admin/admin123`.
+2. Registre uma venda em `/vendas/nova`.
+3. Cancele a venda pelo botão `Cancelar` em `/vendas`.
+4. Confirme que a venda ficou com status `CANCELADA`.
+5. Confirme que o estoque voltou em `/admin/produtos`.
+6. Confirme que `/admin/estoque` mostra movimentação `CANCELAMENTO`.
+7. Tente cancelar a mesma venda novamente e confirme a mensagem de erro.
 8. Acesse `/login` com `vendedora/venda123`.
-9. Registre uma venda em `/vendas/nova`.
-10. Confirme que `/vendas` mostra apenas as vendas dessa vendedora.
-11. Confirme que `/admin/estoque`, `/admin/produtos` e `/admin/categorias` retornam acesso negado.
+9. Registre e cancele uma venda própria.
+10. Confirme que a vendedora não consegue cancelar venda registrada por outra pessoa.

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.estoqueinox.model.FormaPagamento;
 import br.com.estoqueinox.model.Produto;
+import br.com.estoqueinox.model.StatusVenda;
 import br.com.estoqueinox.model.Venda;
 import br.com.estoqueinox.repository.ProdutoRepository;
 import br.com.estoqueinox.repository.VendaRepository;
@@ -38,7 +39,19 @@ public class VendaService {
     }
 
     public List<Produto> listarProdutosDisponiveis() {
-        return produtoRepository.findAtivosWithCategoriaOrderByNome();
+        return produtoRepository.findAtivosComEstoqueWithCategoriaOrderByNome();
+    }
+
+    public Venda buscarPorId(Long id) {
+        return vendaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Venda nao encontrada."));
+    }
+
+    public Venda buscarParaCancelamento(Long vendaId, String username, boolean admin) {
+        Venda venda = buscarPorId(vendaId);
+        validarPermissaoCancelamento(venda, username, admin);
+        validarVendaConcluida(venda);
+        return venda;
     }
 
     @Transactional
@@ -68,5 +81,39 @@ public class VendaService {
 
         estoqueService.registrarBaixaPorVenda(produto, quantidade, username);
         return vendaRepository.save(venda);
+    }
+
+    @Transactional
+    public void cancelarVenda(Long vendaId, String motivoCancelamento, String username, boolean admin) {
+        Venda venda = buscarPorId(vendaId);
+        validarPermissaoCancelamento(venda, username, admin);
+        validarVendaConcluida(venda);
+
+        Produto produto = venda.getProduto();
+        venda.cancelar(username, motivoCancelamento);
+        estoqueService.registrarEstornoPorCancelamento(
+                produto,
+                venda.getQuantidade(),
+                venda.getId(),
+                motivoCancelamento,
+                username
+        );
+    }
+
+    public boolean podeCancelar(Venda venda, String username, boolean admin) {
+        return venda.getStatus() == StatusVenda.CONCLUIDA
+                && (admin || venda.getUsuarioResponsavel().equals(username));
+    }
+
+    private void validarPermissaoCancelamento(Venda venda, String username, boolean admin) {
+        if (!admin && !venda.getUsuarioResponsavel().equals(username)) {
+            throw new IllegalArgumentException("Voce nao pode cancelar uma venda registrada por outra pessoa.");
+        }
+    }
+
+    private void validarVendaConcluida(Venda venda) {
+        if (venda.getStatus() == StatusVenda.CANCELADA) {
+            throw new IllegalArgumentException("Esta venda ja foi cancelada.");
+        }
     }
 }

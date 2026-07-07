@@ -7,62 +7,188 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<main class="min-vh-100 d-flex align-items-center py-5">
+<main class="py-4">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-7">
-                <div class="mb-4">
-                    <h1 class="fw-bold mb-1">Nova venda</h1>
-                    <p class="text-secondary mb-0">Registre uma venda simples de um produto.</p>
-                </div>
+        <div class="mx-auto" style="max-width: 720px;">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold mb-1">Nova venda</h1>
+                <p class="text-secondary mb-0">Escolha um produto, confirme a quantidade e registre a venda.</p>
+            </div>
 
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <form th:action="@{/vendas}" th:object="${vendaForm}" method="post">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="@{/vendas}" th:object="${vendaForm}" method="post" id="vendaForm" novalidate>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-                            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
-                                <p class="mb-0" th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</p>
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                            <p class="mb-0" th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</p>
+                        </div>
+
+                        <div id="formAlert" class="alert alert-warning d-none" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label for="produtoFiltro" class="form-label">Buscar produto</label>
+                            <input type="search" class="form-control form-control-lg" id="produtoFiltro" placeholder="Digite código ou nome">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="produtoId" class="form-label">Produto</label>
+                            <select th:field="*{produtoId}" class="form-select form-select-lg" th:errorclass="is-invalid" id="produtoId" required>
+                                <option value="">Selecione</option>
+                                <option th:each="produto : ${produtos}"
+                                        th:value="${produto.id}"
+                                        th:attr="data-codigo=${produto.codigo},data-nome=${produto.nome},data-estoque=${produto.quantidadeEstoque},data-preco=${produto.precoVenda}"
+                                        th:text="${produto.codigo + ' - ' + produto.nome + ' - Estoque: ' + produto.quantidadeEstoque + ' - ' + #numbers.formatCurrency(produto.precoVenda)}">
+                                    Produto
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('produtoId')}" th:errors="*{produtoId}"></div>
+                            <div class="form-text">A lista mostra apenas produtos ativos com estoque.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="quantidade" class="form-label">Quantidade</label>
+                            <input type="number" th:field="*{quantidade}" class="form-control form-control-lg" th:errorclass="is-invalid" id="quantidade" min="1" step="1" inputmode="numeric" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidade')}" th:errors="*{quantidade}"></div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-flex mb-3" role="group" aria-label="Quantidades rápidas">
+                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="1">1</button>
+                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="2">2</button>
+                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="3">3</button>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="formaPagamento" class="form-label">Forma de pagamento</label>
+                            <select th:field="*{formaPagamento}" class="form-select form-select-lg" th:errorclass="is-invalid" id="formaPagamento" required>
+                                <option value="">Selecione</option>
+                                <option th:each="forma : ${formasPagamento}" th:value="${forma}" th:text="${forma}">PIX</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('formaPagamento')}" th:errors="*{formaPagamento}"></div>
+                        </div>
+
+                        <section class="border rounded p-3 mb-4 bg-light" aria-live="polite">
+                            <h2 class="h6 fw-bold mb-3">Resumo</h2>
+                            <p class="mb-2" id="resumoProduto">Escolha um produto para ver o resumo da venda.</p>
+                            <div class="row g-2 small text-secondary">
+                                <div class="col-6">Quantidade</div>
+                                <div class="col-6 text-end text-dark fw-semibold" id="resumoQuantidade">-</div>
+                                <div class="col-6">Preço unitário</div>
+                                <div class="col-6 text-end text-dark fw-semibold" id="resumoPreco">-</div>
+                                <div class="col-6">Total estimado</div>
+                                <div class="col-6 text-end text-dark fw-bold fs-5" id="resumoTotal">-</div>
                             </div>
+                        </section>
 
-                            <div class="mb-3">
-                                <label for="produtoId" class="form-label">Produto</label>
-                                <select th:field="*{produtoId}" class="form-select" th:errorclass="is-invalid" id="produtoId" required>
-                                    <option value="">Selecione</option>
-                                    <option th:each="produto : ${produtos}"
-                                            th:value="${produto.id}"
-                                            th:text="${produto.codigo + ' - ' + produto.nome + ' - Estoque: ' + produto.quantidadeEstoque + ' - ' + #numbers.formatCurrency(produto.precoVenda)}">
-                                        Produto
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('produtoId')}" th:errors="*{produtoId}"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="quantidade" class="form-label">Quantidade</label>
-                                <input type="number" th:field="*{quantidade}" class="form-control" th:errorclass="is-invalid" id="quantidade" min="1" step="1" required>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidade')}" th:errors="*{quantidade}"></div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="formaPagamento" class="form-label">Forma de pagamento</label>
-                                <select th:field="*{formaPagamento}" class="form-select" th:errorclass="is-invalid" id="formaPagamento" required>
-                                    <option value="">Selecione</option>
-                                    <option th:each="forma : ${formasPagamento}" th:value="${forma}" th:text="${forma}">PIX</option>
-                                </select>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('formaPagamento')}" th:errors="*{formaPagamento}"></div>
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg">Registrar venda</button>
-                                <a th:href="@{/vendas}" class="btn btn-outline-secondary">Cancelar</a>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg py-3">Registrar venda</button>
+                            <a th:href="@{/vendas}" class="btn btn-outline-secondary btn-lg">Voltar</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<script>
+    (() => {
+        const filtro = document.getElementById('produtoFiltro');
+        const produto = document.getElementById('produtoId');
+        const quantidade = document.getElementById('quantidade');
+        const form = document.getElementById('vendaForm');
+        const alertBox = document.getElementById('formAlert');
+        const resumoProduto = document.getElementById('resumoProduto');
+        const resumoQuantidade = document.getElementById('resumoQuantidade');
+        const resumoPreco = document.getElementById('resumoPreco');
+        const resumoTotal = document.getElementById('resumoTotal');
+        const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        function produtoSelecionado() {
+            return produto.options[produto.selectedIndex];
+        }
+
+        function precoSelecionado() {
+            const selecionado = produtoSelecionado();
+            if (!selecionado || !selecionado.dataset.preco) {
+                return null;
+            }
+            return Number(selecionado.dataset.preco.replace(',', '.'));
+        }
+
+        function estoqueSelecionado() {
+            const selecionado = produtoSelecionado();
+            return selecionado && selecionado.dataset.estoque ? Number(selecionado.dataset.estoque) : null;
+        }
+
+        function mostrarAlerta(mensagem) {
+            if (!mensagem) {
+                alertBox.classList.add('d-none');
+                alertBox.textContent = '';
+                return;
+            }
+            alertBox.textContent = mensagem;
+            alertBox.classList.remove('d-none');
+        }
+
+        function atualizarResumo() {
+            const selecionado = produtoSelecionado();
+            const qtd = Number(quantidade.value);
+            const preco = precoSelecionado();
+            const estoque = estoqueSelecionado();
+
+            mostrarAlerta('');
+
+            if (!selecionado || !selecionado.value) {
+                resumoProduto.textContent = 'Escolha um produto para ver o resumo da venda.';
+                resumoQuantidade.textContent = '-';
+                resumoPreco.textContent = '-';
+                resumoTotal.textContent = '-';
+                return;
+            }
+
+            resumoProduto.textContent = `${selecionado.dataset.codigo} - ${selecionado.dataset.nome} · Estoque: ${estoque}`;
+            resumoQuantidade.textContent = qtd > 0 ? String(qtd) : '-';
+            resumoPreco.textContent = preco !== null ? moeda.format(preco) : '-';
+            resumoTotal.textContent = qtd > 0 && preco !== null ? moeda.format(preco * qtd) : '-';
+
+            if (!qtd || qtd <= 0) {
+                mostrarAlerta('Informe uma quantidade maior que zero.');
+            } else if (estoque !== null && qtd > estoque) {
+                mostrarAlerta('A quantidade informada é maior que o estoque disponível.');
+            }
+        }
+
+        filtro.addEventListener('input', () => {
+            const termo = filtro.value.trim().toLowerCase();
+            Array.from(produto.options).forEach((option, index) => {
+                if (index === 0) {
+                    option.hidden = false;
+                    return;
+                }
+                const texto = `${option.dataset.codigo || ''} ${option.dataset.nome || ''}`.toLowerCase();
+                option.hidden = termo !== '' && !texto.includes(termo);
+            });
+        });
+
+        document.querySelectorAll('.quantidade-rapida').forEach((button) => {
+            button.addEventListener('click', () => {
+                quantidade.value = button.dataset.quantidade;
+                atualizarResumo();
+            });
+        });
+
+        produto.addEventListener('change', atualizarResumo);
+        quantidade.addEventListener('input', atualizarResumo);
+        form.addEventListener('submit', (event) => {
+            atualizarResumo();
+            if (!produto.value || Number(quantidade.value) <= 0) {
+                event.preventDefault();
+            }
+        });
+
+        atualizarResumo();
+    })();
+</script>
 </body>
 </html>
