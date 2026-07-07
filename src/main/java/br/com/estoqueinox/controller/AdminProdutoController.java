@@ -35,6 +35,7 @@ public class AdminProdutoController {
         model.addAttribute("categorias", produtoService.listarCategoriasParaNovoProduto());
         model.addAttribute("titulo", "Novo produto");
         model.addAttribute("formAction", "/admin/produtos");
+        model.addAttribute("edicao", false);
         return "admin/produtos/form";
     }
 
@@ -51,6 +52,7 @@ public class AdminProdutoController {
             model.addAttribute("categorias", produtoService.listarCategoriasParaNovoProduto());
             model.addAttribute("titulo", "Novo produto");
             model.addAttribute("formAction", "/admin/produtos");
+            model.addAttribute("edicao", false);
             return "admin/produtos/form";
         }
 
@@ -66,6 +68,7 @@ public class AdminProdutoController {
         model.addAttribute("categorias", produtoService.listarCategoriasParaEdicao(produto));
         model.addAttribute("titulo", "Editar produto");
         model.addAttribute("formAction", "/admin/produtos/" + id);
+        model.addAttribute("edicao", true);
         return "admin/produtos/form";
     }
 
@@ -84,6 +87,7 @@ public class AdminProdutoController {
             model.addAttribute("categorias", produtoService.listarCategoriasParaEdicao(produto));
             model.addAttribute("titulo", "Editar produto");
             model.addAttribute("formAction", "/admin/produtos/" + id);
+            model.addAttribute("edicao", true);
             return "admin/produtos/form";
         }
 

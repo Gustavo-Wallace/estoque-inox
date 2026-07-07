@@ -52,6 +52,15 @@
                         </a>
                     </div>
 
+                    <div class="col-12 col-md-6" th:if="${isAdmin}">
+                        <a th:href="@{/admin/estoque}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-dark mb-2">Estoque</h2>
+                                <p class="text-secondary mb-0">Registrar entradas, ajustes e consultar histórico.</p>
+                            </div>
+                        </a>
+                    </div>
+
                     <div class="col-12 col-md-6">
                         <a th:href="@{/vendas}" class="card border-0 shadow-sm text-decoration-none h-100">
                             <div class="card-body p-4">

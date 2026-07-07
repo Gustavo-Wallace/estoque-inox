@@ -74,7 +74,8 @@
 
                                 <div class="col-12 col-md-6">
                                     <label for="quantidadeEstoque" class="form-label">Quantidade em estoque</label>
-                                    <input type="number" th:field="*{quantidadeEstoque}" class="form-control" th:errorclass="is-invalid" id="quantidadeEstoque" min="0" step="1" required>
+                                    <input type="number" th:field="*{quantidadeEstoque}" class="form-control" th:errorclass="is-invalid" id="quantidadeEstoque" min="0" step="1" th:readonly="${edicao}" required>
+                                    <div th:if="${edicao}" class="form-text">Em produtos existentes, altere o estoque por Entrada ou Ajuste.</div>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidadeEstoque')}" th:errors="*{quantidadeEstoque}"></div>
                                 </div>
 

@@ -91,14 +91,14 @@ public class ProdutoService {
     @Transactional
     public Produto salvar(ProdutoForm form) {
         Produto produto = new Produto();
-        aplicarFormulario(produto, form);
+        aplicarFormulario(produto, form, true);
         return produtoRepository.save(produto);
     }
 
     @Transactional
     public Produto atualizar(Long id, ProdutoForm form) {
         Produto produto = buscarPorId(id);
-        aplicarFormulario(produto, form);
+        aplicarFormulario(produto, form, false);
         return produto;
     }
 
@@ -108,7 +108,7 @@ public class ProdutoService {
         produto.setAtivo(!Boolean.TRUE.equals(produto.getAtivo()));
     }
 
-    private void aplicarFormulario(Produto produto, ProdutoForm form) {
+    private void aplicarFormulario(Produto produto, ProdutoForm form, boolean atualizarEstoque) {
         Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
                 .orElseThrow(() -> new EntityNotFoundException("Categoria nao encontrada."));
 
@@ -118,7 +118,10 @@ public class ProdutoService {
         produto.setCategoria(categoria);
         produto.setPrecoCusto(form.getPrecoCusto());
         produto.setPrecoVenda(form.getPrecoVenda());
-        produto.setQuantidadeEstoque(form.getQuantidadeEstoque());
+        // Para produtos existentes, o estoque deve ser alterado pelas telas de movimentacao.
+        if (atualizarEstoque) {
+            produto.setQuantidadeEstoque(form.getQuantidadeEstoque());
+        }
         produto.setEstoqueMinimo(form.getEstoqueMinimo());
         produto.setAtivo(Boolean.TRUE.equals(form.getAtivo()));
     }
