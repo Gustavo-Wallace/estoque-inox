@@ -21,9 +21,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .requestMatchers("/", "/login").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/vendas").hasAnyRole("ADMIN", "VENDEDORA")
                         .requestMatchers("/produtos").hasAnyRole("ADMIN", "VENDEDORA")
+                        .requestMatchers("/vendas").hasAnyRole("ADMIN", "VENDEDORA")
+                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
                 )

@@ -41,6 +41,8 @@ http://localhost:8080
 - `/dashboard`: painel para usuários autenticados
 - `/produtos`: lista temporária de produtos para usuários autenticados
 - `/admin`: acesso apenas para `ADMIN`
+- `/admin/produtos`: gerenciamento de produtos para `ADMIN`
+- `/admin/categorias`: gerenciamento de categorias para `ADMIN`
 - `/vendas`: acesso para `ADMIN` e `VENDEDORA`
 
 ## H2 Console
@@ -61,6 +63,14 @@ Password:
 
 ## Próximas etapas previstas
 
-- Cadastro de produtos
 - Controle de estoque e vendas
 - Migração futura para PostgreSQL
+
+## Teste manual do CRUD administrativo
+
+1. Acesse `/login` com `admin/admin123`.
+2. Entre em `/admin/produtos` para criar, editar, ativar ou desativar produtos.
+3. Entre em `/admin/categorias` para criar, editar, ativar ou desativar categorias.
+4. Acesse `/login` com `vendedora/venda123`.
+5. Confirme que `/produtos` abre para consulta.
+6. Confirme que `/admin/produtos` e `/admin/categorias` retornam acesso negado.

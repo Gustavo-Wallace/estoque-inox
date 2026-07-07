@@ -19,7 +19,11 @@
                             Usuario: <strong th:text="${username}">usuario</strong><br>
                             Perfil: <strong th:text="${roles}">ADMIN</strong>
                         </p>
-                        <a th:href="@{/dashboard}" class="btn btn-primary w-100">Voltar ao painel</a>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/admin/produtos}" class="btn btn-primary">Gerenciar produtos</a>
+                            <a th:href="@{/admin/categorias}" class="btn btn-outline-primary">Gerenciar categorias</a>
+                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary">Voltar ao painel</a>
+                        </div>
                     </div>
                 </div>
             </div>

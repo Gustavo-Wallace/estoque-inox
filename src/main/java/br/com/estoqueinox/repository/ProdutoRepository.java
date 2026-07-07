@@ -14,6 +14,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
     boolean existsByCodigo(String codigo);
 
+    boolean existsByCodigoAndIdNot(String codigo, Long id);
+
     List<Produto> findByAtivoTrueOrderByNomeAsc();
 
     @Query("select p from Produto p join fetch p.categoria order by p.nome")

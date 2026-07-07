@@ -25,11 +25,29 @@
                 </header>
 
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-6" th:if="${isAdmin}">
+                        <a th:href="@{/admin/produtos}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-dark mb-2">Produtos</h2>
+                                <p class="text-secondary mb-0">Cadastrar e editar produtos.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6" th:unless="${isAdmin}">
                         <a th:href="@{/produtos}" class="card border-0 shadow-sm text-decoration-none h-100">
                             <div class="card-body p-4">
                                 <h2 class="h5 text-dark mb-2">Produtos</h2>
-                                <p class="text-secondary mb-0">Lista temporária de produtos cadastrados.</p>
+                                <p class="text-secondary mb-0">Consultar produtos cadastrados.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6" th:if="${isAdmin}">
+                        <a th:href="@{/admin/categorias}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-dark mb-2">Categorias</h2>
+                                <p class="text-secondary mb-0">Cadastrar e editar categorias.</p>
                             </div>
                         </a>
                     </div>
@@ -50,15 +68,6 @@
                                 <p class="text-secondary mb-0">Disponivel apenas para ADMIN.</p>
                             </div>
                         </a>
-                    </div>
-
-                    <div class="col-12 col-md-6" th:unless="${isAdmin}">
-                        <div class="card border-0 shadow-sm h-100 opacity-75">
-                            <div class="card-body p-4">
-                                <h2 class="h5 text-dark mb-2">Area administrativa</h2>
-                                <p class="text-secondary mb-0">Disponivel apenas para ADMIN.</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
