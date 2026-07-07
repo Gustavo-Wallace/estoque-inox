@@ -87,6 +87,30 @@ public class EstoqueService {
         ));
     }
 
+    public void registrarBaixaPorVenda(Produto produto, Integer quantidade, String username) {
+        if (quantidade == null || quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade vendida deve ser maior que zero.");
+        }
+
+        int estoqueAnterior = produto.getQuantidadeEstoque();
+        if (quantidade > estoqueAnterior) {
+            throw new IllegalArgumentException("Estoque insuficiente para registrar a venda.");
+        }
+
+        int estoquePosterior = estoqueAnterior - quantidade;
+        produto.setQuantidadeEstoque(estoquePosterior);
+
+        movimentacaoEstoqueRepository.save(new MovimentacaoEstoque(
+                produto,
+                TipoMovimentacaoEstoque.VENDA,
+                quantidade,
+                estoqueAnterior,
+                estoquePosterior,
+                "Venda registrada",
+                username
+        ));
+    }
+
     private Produto buscarProduto(Long produtoId) {
         return produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto nao encontrado."));

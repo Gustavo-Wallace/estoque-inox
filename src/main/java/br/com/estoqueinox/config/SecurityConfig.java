@@ -22,7 +22,7 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .requestMatchers("/", "/login").permitAll()
                         .requestMatchers("/produtos").hasAnyRole("ADMIN", "VENDEDORA")
-                        .requestMatchers("/vendas").hasAnyRole("ADMIN", "VENDEDORA")
+                        .requestMatchers("/vendas", "/vendas/**").hasAnyRole("ADMIN", "VENDEDORA")
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()

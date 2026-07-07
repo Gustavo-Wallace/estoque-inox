@@ -22,12 +22,6 @@ public class DashboardController {
         return "admin";
     }
 
-    @GetMapping("/vendas")
-    public String vendas(Authentication authentication, Model model) {
-        addUserInfo(authentication, model);
-        return "vendas";
-    }
-
     private void addUserInfo(Authentication authentication, Model model) {
         String roles = authentication.getAuthorities().stream()
                 .map(authority -> authority.getAuthority().replace("ROLE_", ""))

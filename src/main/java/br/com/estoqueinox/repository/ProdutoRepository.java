@@ -21,6 +21,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     @Query("select p from Produto p join fetch p.categoria order by p.nome")
     List<Produto> findAllWithCategoriaOrderByNome();
 
+    @Query("select p from Produto p join fetch p.categoria where p.ativo = true order by p.nome")
+    List<Produto> findAtivosWithCategoriaOrderByNome();
+
     @Query("select p from Produto p where p.quantidadeEstoque <= p.estoqueMinimo order by p.nome")
     List<Produto> findComEstoqueBaixo();
 }

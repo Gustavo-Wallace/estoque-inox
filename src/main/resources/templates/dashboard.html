@@ -25,6 +25,24 @@
                 </header>
 
                 <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <a th:href="@{/vendas/nova}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-dark mb-2">Nova venda</h2>
+                                <p class="text-secondary mb-0">Registrar venda simples e baixar estoque.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <a th:href="@{/vendas}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-dark mb-2" th:text="${isAdmin} ? 'Vendas' : 'Minhas vendas'">Vendas</h2>
+                                <p class="text-secondary mb-0">Consultar vendas registradas.</p>
+                            </div>
+                        </a>
+                    </div>
+
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin/produtos}" class="card border-0 shadow-sm text-decoration-none h-100">
                             <div class="card-body p-4">
@@ -57,15 +75,6 @@
                             <div class="card-body p-4">
                                 <h2 class="h5 text-dark mb-2">Estoque</h2>
                                 <p class="text-secondary mb-0">Registrar entradas, ajustes e consultar histórico.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-12 col-md-6">
-                        <a th:href="@{/vendas}" class="card border-0 shadow-sm text-decoration-none h-100">
-                            <div class="card-body p-4">
-                                <h2 class="h5 text-dark mb-2">Area de vendas</h2>
-                                <p class="text-secondary mb-0">Acesso inicial para validar permissoes.</p>
                             </div>
                         </a>
                     </div>

@@ -40,6 +40,8 @@ http://localhost:8080
 - `/login`: login público
 - `/dashboard`: painel para usuários autenticados
 - `/produtos`: lista temporária de produtos para usuários autenticados
+- `/vendas`: listagem de vendas para `ADMIN` e `VENDEDORA`
+- `/vendas/nova`: registro de venda simples para `ADMIN` e `VENDEDORA`
 - `/admin`: acesso apenas para `ADMIN`
 - `/admin/produtos`: gerenciamento de produtos para `ADMIN`
 - `/admin/categorias`: gerenciamento de categorias para `ADMIN`
@@ -47,7 +49,6 @@ http://localhost:8080
 - `/admin/estoque/entrada`: registro de entrada de estoque para `ADMIN`
 - `/admin/estoque/ajuste`: ajuste manual de estoque para `ADMIN`
 - `/admin/produtos/{id}/movimentacoes`: histórico de estoque de um produto para `ADMIN`
-- `/vendas`: acesso para `ADMIN` e `VENDEDORA`
 
 ## H2 Console
 
@@ -88,3 +89,17 @@ Password:
 5. Confira o histórico geral em `/admin/estoque`.
 6. Confira o histórico de um produto em `/admin/produtos/{id}/movimentacoes`.
 7. Acesse `/login` com `vendedora/venda123` e confirme que `/admin/estoque` retorna acesso negado.
+
+## Teste manual de venda simples
+
+1. Acesse `/login` com `admin/admin123`.
+2. Entre em `/vendas/nova`.
+3. Registre uma venda de um produto ativo com estoque.
+4. Confira a venda em `/vendas`.
+5. Confira a baixa de estoque em `/produtos` ou `/admin/produtos`.
+6. Confira a movimentação `VENDA` em `/admin/estoque`.
+7. Tente vender uma quantidade maior que o estoque e confirme a mensagem de erro.
+8. Acesse `/login` com `vendedora/venda123`.
+9. Registre uma venda em `/vendas/nova`.
+10. Confirme que `/vendas` mostra apenas as vendas dessa vendedora.
+11. Confirme que `/admin/estoque`, `/admin/produtos` e `/admin/categorias` retornam acesso negado.
