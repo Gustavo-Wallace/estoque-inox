@@ -1,5 +1,6 @@
 package br.com.estoqueinox.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,11 +19,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .requestMatchers("/", "/login").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/vendas").hasAnyRole("ADMIN", "VENDEDORA")
+                        .requestMatchers("/produtos").hasAnyRole("ADMIN", "VENDEDORA")
                         .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(PathRequest.toH2Console())
+                )
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

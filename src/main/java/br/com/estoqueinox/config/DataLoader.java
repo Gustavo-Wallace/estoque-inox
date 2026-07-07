@@ -1,0 +1,96 @@
+package br.com.estoqueinox.config;
+
+import java.math.BigDecimal;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import br.com.estoqueinox.model.Categoria;
+import br.com.estoqueinox.model.Produto;
+import br.com.estoqueinox.repository.CategoriaRepository;
+import br.com.estoqueinox.repository.ProdutoRepository;
+
+@Component
+@Profile("dev")
+public class DataLoader implements CommandLineRunner {
+
+    private final CategoriaRepository categoriaRepository;
+    private final ProdutoRepository produtoRepository;
+
+    public DataLoader(CategoriaRepository categoriaRepository, ProdutoRepository produtoRepository) {
+        this.categoriaRepository = categoriaRepository;
+        this.produtoRepository = produtoRepository;
+    }
+
+    @Override
+    public void run(String... args) {
+        criarCategoriaSeNaoExistir("Brincos");
+        criarCategoriaSeNaoExistir("Anéis");
+        criarCategoriaSeNaoExistir("Colares");
+        criarCategoriaSeNaoExistir("Pulseiras");
+        criarCategoriaSeNaoExistir("Correntes");
+
+        criarProdutoSeNaoExistir(
+                "BRI-001",
+                "Brinco argola inox dourado",
+                "Brincos",
+                "8.00",
+                "25.00",
+                12,
+                3
+        );
+        criarProdutoSeNaoExistir(
+                "ANE-001",
+                "Anel inox liso",
+                "Anéis",
+                "6.00",
+                "20.00",
+                10,
+                2
+        );
+        criarProdutoSeNaoExistir(
+                "COL-001",
+                "Colar inox ponto de luz",
+                "Colares",
+                "12.00",
+                "35.00",
+                8,
+                2
+        );
+    }
+
+    private void criarCategoriaSeNaoExistir(String nome) {
+        categoriaRepository.findByNome(nome)
+                .orElseGet(() -> categoriaRepository.save(new Categoria(nome)));
+    }
+
+    private void criarProdutoSeNaoExistir(
+            String codigo,
+            String nome,
+            String nomeCategoria,
+            String precoCusto,
+            String precoVenda,
+            Integer quantidadeEstoque,
+            Integer estoqueMinimo
+    ) {
+        if (produtoRepository.existsByCodigo(codigo)) {
+            return;
+        }
+
+        Categoria categoria = categoriaRepository.findByNome(nomeCategoria)
+                .orElseThrow(() -> new IllegalStateException("Categoria não encontrada: " + nomeCategoria));
+
+        Produto produto = new Produto(
+                codigo,
+                nome,
+                new BigDecimal(precoCusto),
+                new BigDecimal(precoVenda),
+                quantidadeEstoque,
+                estoqueMinimo,
+                categoria
+        );
+
+        produtoRepository.save(produto);
+    }
+}
