@@ -27,6 +27,14 @@
                         <dt class="col-sm-4">Quantidade</dt>
                         <dd class="col-sm-8" th:text="${item.quantidade}">1</dd>
 
+                        <dt class="col-sm-4">Ja cancelada</dt>
+                        <dd class="col-sm-8" th:text="${item.quantidadeCancelada}">0</dd>
+
+                        <dt class="col-sm-4">Restante ativa</dt>
+                        <dd class="col-sm-8">
+                            <strong th:text="${item.quantidadeAtiva}">1</strong>
+                        </dd>
+
                         <dt class="col-sm-4">Preco original</dt>
                         <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.precoOriginalUnitario)}">R$ 0,00</dd>
 
@@ -44,7 +52,22 @@
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
                         <div class="alert alert-warning" role="alert">
-                            Apenas este item sera cancelado e estornado no estoque.
+                            A quantidade informada sera estornada ao estoque.
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="quantidadeCancelar" class="form-label">Quantidade a cancelar</label>
+                            <input type="number"
+                                   th:field="*{quantidadeCancelar}"
+                                   class="form-control form-control-lg"
+                                   th:errorclass="is-invalid"
+                                   id="quantidadeCancelar"
+                                   min="1"
+                                   th:max="${item.quantidadeAtiva}"
+                                   step="1"
+                                   inputmode="numeric"
+                                   required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidadeCancelar')}" th:errors="*{quantidadeCancelar}"></div>
                         </div>
 
                         <div class="mb-4">

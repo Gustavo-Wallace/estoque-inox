@@ -43,6 +43,10 @@ public class VendaItem {
     private Integer quantidade;
 
     @NotNull
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer quantidadeCancelada = 0;
+
+    @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precoOriginalUnitario = BigDecimal.ZERO;
 
@@ -101,6 +105,9 @@ public class VendaItem {
     @PrePersist
     public void prePersist() {
         criadoEm = LocalDateTime.now();
+        if (quantidadeCancelada == null) {
+            quantidadeCancelada = 0;
+        }
         recalcularValores();
         if (status == null) {
             status = StatusVendaItem.CONCLUIDO;
@@ -108,7 +115,19 @@ public class VendaItem {
     }
 
     public void cancelar(String username, String motivoCancelamento) {
-        status = StatusVendaItem.CANCELADO;
+        cancelarQuantidade(getQuantidadeAtiva(), username, motivoCancelamento);
+    }
+
+    public void cancelarQuantidade(Integer quantidadeCancelar, String username, String motivoCancelamento) {
+        if (quantidadeCancelar == null || quantidadeCancelar <= 0) {
+            throw new IllegalArgumentException("A quantidade a cancelar deve ser maior que zero.");
+        }
+        if (quantidadeCancelar > getQuantidadeAtiva()) {
+            throw new IllegalArgumentException("A quantidade a cancelar nao pode ser maior que a quantidade ativa do item.");
+        }
+
+        quantidadeCancelada += quantidadeCancelar;
+        atualizarStatusPelaQuantidade();
         canceladoEm = LocalDateTime.now();
         usuarioCancelamento = username;
         this.motivoCancelamento = normalizarMotivo(motivoCancelamento);
@@ -143,6 +162,14 @@ public class VendaItem {
         return quantidade;
     }
 
+    public Integer getQuantidadeCancelada() {
+        return quantidadeCancelada;
+    }
+
+    public Integer getQuantidadeAtiva() {
+        return quantidade - quantidadeCancelada;
+    }
+
     public BigDecimal getPrecoOriginalUnitario() {
         return precoOriginalUnitario;
     }
@@ -165,6 +192,18 @@ public class VendaItem {
 
     public BigDecimal getValorTotalFinal() {
         return valorTotalFinal;
+    }
+
+    public BigDecimal getValorTotalOriginalAtivo() {
+        return moeda(precoOriginalUnitario.multiply(BigDecimal.valueOf(getQuantidadeAtiva())));
+    }
+
+    public BigDecimal getValorTotalDescontoAtivo() {
+        return moeda(descontoUnitario.multiply(BigDecimal.valueOf(getQuantidadeAtiva())));
+    }
+
+    public BigDecimal getValorTotalFinalAtivo() {
+        return moeda(precoFinalUnitario.multiply(BigDecimal.valueOf(getQuantidadeAtiva())));
     }
 
     public BigDecimal getPrecoUnitario() {
@@ -200,6 +239,16 @@ public class VendaItem {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
         return valor.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void atualizarStatusPelaQuantidade() {
+        if (quantidadeCancelada == 0) {
+            status = StatusVendaItem.CONCLUIDO;
+        } else if (quantidadeCancelada < quantidade) {
+            status = StatusVendaItem.PARCIALMENTE_CANCELADO;
+        } else {
+            status = StatusVendaItem.CANCELADO;
+        }
     }
 
     private String normalizarMotivo(String motivoCancelamento) {

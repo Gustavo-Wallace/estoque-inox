@@ -103,9 +103,9 @@ public class Venda {
 
     public void atualizarStatusAposCancelamento(String username, String motivoCancelamento) {
         boolean todosCancelados = itens.stream()
-                .allMatch(item -> item.getStatus() == StatusVendaItem.CANCELADO);
+                .allMatch(item -> item.getQuantidadeAtiva() == 0);
         boolean algumCancelado = itens.stream()
-                .anyMatch(item -> item.getStatus() == StatusVendaItem.CANCELADO);
+                .anyMatch(item -> item.getQuantidadeCancelada() > 0);
 
         if (todosCancelados) {
             cancelar(username, motivoCancelamento);

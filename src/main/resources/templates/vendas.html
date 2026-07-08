@@ -42,7 +42,11 @@
                         <li th:each="item : ${venda.itens}" class="border-top py-2">
                             <span class="fw-semibold" th:text="${item.produto.codigo}">COD</span>
                             <span th:text="' - ' + ${item.produto.nome}">Produto</span>
-                            <span class="text-secondary" th:text="' | qtd. ' + ${item.quantidade}">qtd. 1</span>
+                            <span class="text-secondary"
+                                  th:text="' | ' + ${item.quantidade} + ' vendida(s), ' + ${item.quantidadeCancelada} + ' cancelada(s), ' + ${item.quantidadeAtiva} + ' ativa(s)'">
+                                qtd.
+                            </span>
+                            <span th:if="${item.status.name() == 'PARCIALMENTE_CANCELADO'}" class="badge text-bg-warning ms-1">parcial</span>
                             <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger ms-1">cancelado</span>
                         </li>
                     </ul>
@@ -110,7 +114,11 @@
                                 <div th:each="item : ${venda.itens}" class="small">
                                     <span class="fw-semibold" th:text="${item.produto.codigo}">COD</span>
                                     <span th:text="' - ' + ${item.produto.nome}">Produto</span>
-                                    <span class="text-secondary" th:text="' | qtd. ' + ${item.quantidade}">qtd. 1</span>
+                                    <span class="text-secondary"
+                                          th:text="' | ' + ${item.quantidade} + ' vendida(s), ' + ${item.quantidadeCancelada} + ' cancelada(s), ' + ${item.quantidadeAtiva} + ' ativa(s)'">
+                                        qtd.
+                                    </span>
+                                    <span th:if="${item.status.name() == 'PARCIALMENTE_CANCELADO'}" class="badge text-bg-warning ms-1">parcial</span>
                                     <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger ms-1">cancelado</span>
                                 </div>
                             </td>

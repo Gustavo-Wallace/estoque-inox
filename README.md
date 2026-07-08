@@ -98,6 +98,12 @@ Nesse caso, acesse:
 http://localhost:8080
 ```
 
+para finalizar:
+```bash
+netstat -ano | findstr "8080"
+taskkill /F /PID 7864
+```
+
 O volume `postgres_data` mantem os dados entre reinicios do container.
 
 ## Rotas principais
@@ -147,6 +153,36 @@ Password:
 
 O H2 Console fica desabilitado no profile `postgres`.
 
+## Backup manual do PostgreSQL
+
+Suba o PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+Gere um backup manual no Windows:
+
+```cmd
+scripts\backup-postgres.bat
+```
+
+O arquivo sera salvo em:
+
+```text
+backups/
+```
+
+Os backups locais nao devem ser commitados. A pasta `backups/` esta no `.gitignore`.
+
+Para restaurar um backup em ambiente de desenvolvimento:
+
+```cmd
+scripts\restore-postgres.bat backups\NOME_DO_ARQUIVO.sql
+```
+
+O restore pode sobrescrever dados do banco local. Para producao real, ainda sera necessario configurar backup automatico e armazenamento externo seguro.
+
 ## Teste manual de venda com multiplos itens
 
 1. Acesse `/login` com `admin/admin123`.
@@ -172,6 +208,19 @@ O H2 Console fica desabilitado no profile `postgres`.
 8. Tente desconto negativo e desconto maior que o preco do produto.
 9. Confirme que a venda invalida nao e salva.
 10. Confira em `/admin/relatorios` que o desconto total aparece e que produtos vendidos usam valor final.
+
+## Teste manual de cancelamento parcial de item
+
+1. Acesse `/login` com `admin/admin123`.
+2. Crie uma venda com 2 unidades do mesmo produto.
+3. Abra `/vendas/{id}`.
+4. Clique em cancelar item.
+5. Informe quantidade `1` e confirme.
+6. Confira que o item ficou `PARCIALMENTE_CANCELADO`.
+7. Confira quantidade vendida, cancelada e ativa no detalhe da venda.
+8. Confira em `/admin/estoque` uma movimentacao `CANCELAMENTO` com quantidade `1`.
+9. Cancele a quantidade restante e confirme que o item ficou `CANCELADO`.
+10. Crie outra venda, cancele parcialmente um item e depois cancele a venda inteira para confirmar que apenas as quantidades ativas sao estornadas.
 
 ## Teste manual de permissoes
 

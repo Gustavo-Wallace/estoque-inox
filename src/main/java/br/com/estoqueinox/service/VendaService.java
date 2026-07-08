@@ -13,7 +13,6 @@ import br.com.estoqueinox.dto.VendaForm;
 import br.com.estoqueinox.dto.VendaItemForm;
 import br.com.estoqueinox.model.Produto;
 import br.com.estoqueinox.model.StatusVenda;
-import br.com.estoqueinox.model.StatusVendaItem;
 import br.com.estoqueinox.model.Venda;
 import br.com.estoqueinox.model.VendaItem;
 import br.com.estoqueinox.repository.ProdutoRepository;
@@ -100,12 +99,14 @@ public class VendaService {
 
         boolean algumItemCancelado = false;
         for (VendaItem item : venda.getItens()) {
-            if (item.getStatus() == StatusVendaItem.CONCLUIDO) {
-                item.cancelar(username, motivoCancelamento);
+            int quantidadeAtiva = item.getQuantidadeAtiva();
+            if (quantidadeAtiva > 0) {
+                item.cancelarQuantidade(quantidadeAtiva, username, motivoCancelamento);
                 estoqueService.registrarEstornoPorCancelamento(
                         item.getProduto(),
-                        item.getQuantidade(),
+                        quantidadeAtiva,
                         venda.getId(),
+                        item.getId(),
                         motivoCancelamento,
                         username
                 );
@@ -121,20 +122,22 @@ public class VendaService {
     }
 
     @Transactional
-    public void cancelarItem(Long vendaId, Long itemId, String motivoCancelamento, String username, boolean admin) {
+    public void cancelarItem(Long vendaId, Long itemId, Integer quantidadeCancelar, String motivoCancelamento, String username, boolean admin) {
         Venda venda = buscarParaDetalhe(vendaId, username, admin);
         validarVendaNaoCancelada(venda);
 
         VendaItem item = buscarItemDaVenda(venda, itemId);
-        if (item.getStatus() == StatusVendaItem.CANCELADO) {
+        if (item.getQuantidadeAtiva() <= 0) {
             throw new IllegalArgumentException("Este item ja foi cancelado.");
         }
+        validarQuantidadeCancelamento(item, quantidadeCancelar);
 
-        item.cancelar(username, motivoCancelamento);
+        item.cancelarQuantidade(quantidadeCancelar, username, motivoCancelamento);
         estoqueService.registrarEstornoPorCancelamento(
                 item.getProduto(),
-                item.getQuantidade(),
+                quantidadeCancelar,
                 venda.getId(),
+                item.getId(),
                 motivoCancelamento,
                 username
         );
@@ -144,7 +147,7 @@ public class VendaService {
     public VendaItem buscarItemParaCancelamento(Long vendaId, Long itemId, String username, boolean admin) {
         Venda venda = buscarParaCancelamento(vendaId, username, admin);
         VendaItem item = buscarItemDaVenda(venda, itemId);
-        if (item.getStatus() == StatusVendaItem.CANCELADO) {
+        if (item.getQuantidadeAtiva() <= 0) {
             throw new IllegalArgumentException("Este item ja foi cancelado.");
         }
         return item;
@@ -157,7 +160,7 @@ public class VendaService {
 
     public boolean podeCancelarItem(Venda venda, VendaItem item, String username, boolean admin) {
         return podeCancelarVenda(venda, username, admin)
-                && item.getStatus() == StatusVendaItem.CONCLUIDO;
+                && item.getQuantidadeAtiva() > 0;
     }
 
     private void validarFormulario(VendaForm form) {
@@ -225,6 +228,15 @@ public class VendaService {
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Item da venda nao encontrado."));
+    }
+
+    private void validarQuantidadeCancelamento(VendaItem item, Integer quantidadeCancelar) {
+        if (quantidadeCancelar == null || quantidadeCancelar <= 0) {
+            throw new IllegalArgumentException("A quantidade a cancelar deve ser maior que zero.");
+        }
+        if (quantidadeCancelar > item.getQuantidadeAtiva()) {
+            throw new IllegalArgumentException("A quantidade a cancelar nao pode ser maior que a quantidade ativa do item.");
+        }
     }
 
     private void validarPermissaoUsuario(Venda venda, String username, boolean admin) {

@@ -46,7 +46,9 @@
                             <thead>
                             <tr>
                                 <th>Produto</th>
-                                <th>Qtd.</th>
+                                <th>Vendida</th>
+                                <th>Cancelada</th>
+                                <th>Ativa</th>
                                 <th>Original</th>
                                 <th>Desconto</th>
                                 <th>Final</th>
@@ -60,11 +62,14 @@
                                     <span th:text="' - ' + ${item.produto.nome}">Produto</span>
                                 </td>
                                 <td th:text="${item.quantidade}">1</td>
+                                <td th:text="${item.quantidadeCancelada}">0</td>
+                                <td class="fw-semibold" th:text="${item.quantidadeAtiva}">1</td>
                                 <td th:text="${#numbers.formatCurrency(item.valorTotalOriginal)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.valorTotalDesconto)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.valorTotalFinal)}">R$ 0,00</td>
                                 <td>
                                     <span th:if="${item.status.name() == 'CONCLUIDO'}" class="badge text-bg-success">CONCLUIDO</span>
+                                    <span th:if="${item.status.name() == 'PARCIALMENTE_CANCELADO'}" class="badge text-bg-warning">PARCIAL</span>
                                     <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger">CANCELADO</span>
                                 </td>
                             </tr>

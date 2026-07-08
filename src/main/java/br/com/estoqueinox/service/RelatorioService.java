@@ -23,7 +23,6 @@ import br.com.estoqueinox.dto.VendedoraRelatorioDto;
 import br.com.estoqueinox.model.FormaPagamento;
 import br.com.estoqueinox.model.Produto;
 import br.com.estoqueinox.model.StatusVenda;
-import br.com.estoqueinox.model.StatusVendaItem;
 import br.com.estoqueinox.model.Venda;
 import br.com.estoqueinox.model.VendaItem;
 import br.com.estoqueinox.repository.ProdutoRepository;
@@ -70,8 +69,8 @@ public class RelatorioService {
                         venda.getUsuarioResponsavel(),
                         venda.getFormaPagamento(),
                         venda.getStatus(),
-                        venda.getValorTotalOriginal(),
-                        venda.getValorTotalDesconto(),
+                        calcularValorOriginal(venda),
+                        calcularValorDesconto(venda),
                         calcularValorLiquido(venda)
                 ))
                 .toList();
@@ -95,7 +94,7 @@ public class RelatorioService {
 
         vendas.stream()
                 .flatMap(venda -> venda.getItens().stream())
-                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
+                .filter(item -> item.getQuantidadeAtiva() > 0)
                 .forEach(item -> {
                     Produto produto = item.getProduto();
                     ProdutoVendidoAgrupado agrupado = agrupados.computeIfAbsent(
@@ -106,7 +105,7 @@ public class RelatorioService {
                                     produto.getCategoria().getNome()
                             )
                     );
-                    agrupado.adicionar(item.getQuantidade(), item.getValorTotalFinal());
+                    agrupado.adicionar(item.getQuantidadeAtiva(), item.getValorTotalFinalAtivo());
                 });
 
         return agrupados.values().stream()
@@ -160,15 +159,15 @@ public class RelatorioService {
 
     private BigDecimal calcularTotalBruto(List<Venda> vendas) {
         return vendas.stream()
-                .map(Venda::getValorTotalOriginal)
+                .map(this::calcularValorOriginal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private BigDecimal calcularTotalDesconto(List<Venda> vendas) {
         return vendas.stream()
                 .flatMap(venda -> venda.getItens().stream())
-                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
-                .map(VendaItem::getValorTotalDesconto)
+                .filter(item -> item.getQuantidadeAtiva() > 0)
+                .map(VendaItem::getValorTotalDescontoAtivo)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -180,15 +179,22 @@ public class RelatorioService {
 
     private BigDecimal calcularValorLiquido(Venda venda) {
         return venda.getItens().stream()
-                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
-                .map(VendaItem::getValorTotalFinal)
+                .filter(item -> item.getQuantidadeAtiva() > 0)
+                .map(VendaItem::getValorTotalFinalAtivo)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calcularValorOriginal(Venda venda) {
+        return venda.getItens().stream()
+                .filter(item -> item.getQuantidadeAtiva() > 0)
+                .map(VendaItem::getValorTotalOriginalAtivo)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private BigDecimal calcularValorDesconto(Venda venda) {
         return venda.getItens().stream()
-                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
-                .map(VendaItem::getValorTotalDesconto)
+                .filter(item -> item.getQuantidadeAtiva() > 0)
+                .map(VendaItem::getValorTotalDescontoAtivo)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -200,8 +206,8 @@ public class RelatorioService {
 
     private int calcularItensVendidos(Venda venda) {
         return venda.getItens().stream()
-                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
-                .mapToInt(VendaItem::getQuantidade)
+                .filter(item -> item.getQuantidadeAtiva() > 0)
+                .mapToInt(VendaItem::getQuantidadeAtiva)
                 .sum();
     }
 
@@ -219,7 +225,7 @@ public class RelatorioService {
 
         for (Venda venda : vendas) {
             totais.get(venda.getFormaPagamento()).adicionar(
-                    venda.getValorTotalOriginal(),
+                    calcularValorOriginal(venda),
                     calcularValorDesconto(venda),
                     calcularValorLiquido(venda)
             );

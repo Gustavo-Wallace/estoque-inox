@@ -112,6 +112,10 @@ public class EstoqueService {
     }
 
     public void registrarEstornoPorCancelamento(Produto produto, Integer quantidade, Long vendaId, String motivo, String username) {
+        registrarEstornoPorCancelamento(produto, quantidade, vendaId, null, motivo, username);
+    }
+
+    public void registrarEstornoPorCancelamento(Produto produto, Integer quantidade, Long vendaId, Long itemId, String motivo, String username) {
         if (quantidade == null || quantidade <= 0) {
             throw new IllegalArgumentException("A quantidade cancelada deve ser maior que zero.");
         }
@@ -126,7 +130,7 @@ public class EstoqueService {
                 quantidade,
                 estoqueAnterior,
                 estoquePosterior,
-                montarObservacaoCancelamento(vendaId, motivo),
+                montarObservacaoCancelamento(vendaId, itemId, motivo),
                 username
         ));
     }
@@ -144,7 +148,14 @@ public class EstoqueService {
     }
 
     private String montarObservacaoCancelamento(Long vendaId, String motivo) {
+        return montarObservacaoCancelamento(vendaId, null, motivo);
+    }
+
+    private String montarObservacaoCancelamento(Long vendaId, Long itemId, String motivo) {
         String observacao = "Cancelamento da venda #" + vendaId;
+        if (itemId != null) {
+            observacao += ", item #" + itemId;
+        }
         if (motivo != null && !motivo.isBlank()) {
             observacao += " - motivo: " + motivo.trim();
         }

@@ -101,13 +101,16 @@
                             <thead class="table-light">
                             <tr>
                                 <th>Produto</th>
-                                <th>Qtd.</th>
+                                <th>Qtd. original</th>
+                                <th>Cancelada</th>
+                                <th>Ativa</th>
                                 <th>Preco orig.</th>
                                 <th>Desc. unit.</th>
                                 <th>Preco final</th>
                                 <th>Subtotal orig.</th>
                                 <th>Desc. total</th>
                                 <th>Subtotal final</th>
+                                <th>Subtotal ativo</th>
                                 <th>Status</th>
                                 <th>Cancelamento</th>
                                 <th>Acoes</th>
@@ -120,14 +123,18 @@
                                     <span th:text="' - ' + ${item.produto.nome}">Produto</span>
                                 </td>
                                 <td th:text="${item.quantidade}">1</td>
+                                <td th:text="${item.quantidadeCancelada}">0</td>
+                                <td class="fw-semibold" th:text="${item.quantidadeAtiva}">1</td>
                                 <td th:text="${#numbers.formatCurrency(item.precoOriginalUnitario)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.descontoUnitario)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.precoFinalUnitario)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.valorTotalOriginal)}">R$ 0,00</td>
                                 <td th:text="${#numbers.formatCurrency(item.valorTotalDesconto)}">R$ 0,00</td>
                                 <td class="fw-semibold" th:text="${#numbers.formatCurrency(item.valorTotalFinal)}">R$ 0,00</td>
+                                <td class="fw-semibold" th:text="${#numbers.formatCurrency(item.valorTotalFinalAtivo)}">R$ 0,00</td>
                                 <td>
                                     <span th:if="${item.status.name() == 'CONCLUIDO'}" class="badge text-bg-success">CONCLUIDO</span>
+                                    <span th:if="${item.status.name() == 'PARCIALMENTE_CANCELADO'}" class="badge text-bg-warning">PARCIALMENTE_CANCELADO</span>
                                     <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger">CANCELADO</span>
                                 </td>
                                 <td class="small">

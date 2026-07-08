@@ -157,9 +157,11 @@ public class VendaController {
 
         try {
             VendaItem item = vendaService.buscarItemParaCancelamento(vendaId, itemId, authentication.getName(), admin);
+            CancelamentoVendaItemForm form = new CancelamentoVendaItemForm();
+            form.setQuantidadeCancelar(item.getQuantidadeAtiva());
             model.addAttribute("venda", item.getVenda());
             model.addAttribute("item", item);
-            model.addAttribute("cancelamentoVendaItemForm", new CancelamentoVendaItemForm());
+            model.addAttribute("cancelamentoVendaItemForm", form);
             return "venda-item-cancelar";
         } catch (IllegalArgumentException | EntityNotFoundException ex) {
             redirectAttributes.addFlashAttribute("erro", ex.getMessage());
@@ -197,7 +199,14 @@ public class VendaController {
         }
 
         try {
-            vendaService.cancelarItem(vendaId, itemId, form.getMotivoCancelamento(), authentication.getName(), admin);
+            vendaService.cancelarItem(
+                    vendaId,
+                    itemId,
+                    form.getQuantidadeCancelar(),
+                    form.getMotivoCancelamento(),
+                    authentication.getName(),
+                    admin
+            );
             redirectAttributes.addFlashAttribute("sucesso", "Item cancelado com sucesso.");
         } catch (IllegalArgumentException | EntityNotFoundException ex) {
             redirectAttributes.addFlashAttribute("erro", ex.getMessage());

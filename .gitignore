@@ -24,6 +24,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Database backups
+backups/
+
 # Environment
 .env
 .env.*
