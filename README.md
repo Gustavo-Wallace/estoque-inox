@@ -13,12 +13,22 @@ O projeto ja possui base Spring Boot com Thymeleaf, autenticacao persistida em b
 - Spring Security
 - Spring Data JPA
 - H2 Database
+- PostgreSQL
 - Bootstrap via CDN
+- Docker Compose
 
-## Como rodar localmente
+## Como rodar localmente com H2
+
+No Windows:
+
+```cmd
+mvnw.cmd spring-boot:run
+```
+
+No Linux/macOS:
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Depois, acesse:
@@ -27,12 +37,68 @@ Depois, acesse:
 http://localhost:8080
 ```
 
+O profile padrao e `dev`, usando H2 em memoria. Os dados somem ao reiniciar a aplicacao.
+
 ## Usuarios de teste
 
 | Usuario | Senha | Perfil |
 | --- | --- | --- |
 | `admin` | `admin123` | `ADMIN` |
 | `vendedora` | `venda123` | `VENDEDORA` |
+
+Essas senhas sao apenas para desenvolvimento. Troque antes de qualquer uso real.
+
+## Rodar com PostgreSQL via Docker Compose
+
+Suba apenas o banco:
+
+```bash
+docker compose up -d postgres
+```
+
+Depois rode a aplicacao com o profile `postgres`.
+
+No Windows CMD:
+
+```cmd
+set SPRING_PROFILES_ACTIVE=postgres && mvnw.cmd spring-boot:run
+```
+
+No PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE="postgres"; .\mvnw.cmd spring-boot:run
+```
+
+No Linux/macOS:
+
+```bash
+SPRING_PROFILES_ACTIVE=postgres ./mvnw spring-boot:run
+```
+
+Por padrao, o profile `postgres` usa:
+
+```text
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=estoque_inox
+DB_USER=estoque_user
+DB_PASSWORD=estoque_pass
+```
+
+Tambem e possivel subir banco e aplicacao juntos:
+
+```bash
+docker compose up --build
+```
+
+Nesse caso, acesse:
+
+```text
+http://localhost:8080
+```
+
+O volume `postgres_data` mantem os dados entre reinicios do container.
 
 ## Rotas principais
 
@@ -78,6 +144,8 @@ JDBC URL: jdbc:h2:mem:estoqueinox
 User Name: sa
 Password:
 ```
+
+O H2 Console fica desabilitado no profile `postgres`.
 
 ## Teste manual de venda com multiplos itens
 

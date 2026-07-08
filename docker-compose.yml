@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: estoque-inox-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: estoque_inox
+      POSTGRES_USER: estoque_user
+      POSTGRES_PASSWORD: estoque_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estoque_user -d estoque_inox"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: estoque-inox-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: estoque_inox
+      DB_USER: estoque_user
+      DB_PASSWORD: estoque_pass
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

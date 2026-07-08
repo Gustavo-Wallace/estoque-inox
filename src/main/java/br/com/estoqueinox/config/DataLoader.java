@@ -3,7 +3,6 @@ package br.com.estoqueinox.config;
 import java.math.BigDecimal;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,6 @@ import br.com.estoqueinox.repository.ProdutoRepository;
 import br.com.estoqueinox.repository.UsuarioRepository;
 
 @Component
-@Profile("dev")
 public class DataLoader implements CommandLineRunner {
 
     private final CategoriaRepository categoriaRepository;
