@@ -28,48 +28,46 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between gap-3 mb-2">
                         <div>
-                            <p class="fw-bold mb-1" th:text="${venda.produto.codigo}">COD</p>
-                            <h2 class="h5 mb-0" th:text="${venda.produto.nome}">Produto</h2>
+                            <p class="text-secondary small mb-1" th:text="${#temporals.format(venda.criadoEm, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</p>
+                            <h2 class="h5 mb-0" th:text="'Venda #' + ${venda.id}">Venda #1</h2>
                         </div>
-                        <span th:if="${venda.status.name() == 'CONCLUIDA'}" class="badge text-bg-success align-self-start">CONCLUIDA</span>
-                        <span th:if="${venda.status.name() == 'CANCELADA'}" class="badge text-bg-danger align-self-start">CANCELADA</span>
+                        <div class="text-end">
+                            <span th:if="${venda.status.name() == 'CONCLUIDA'}" class="badge text-bg-success">CONCLUIDA</span>
+                            <span th:if="${venda.status.name() == 'PARCIALMENTE_CANCELADA'}" class="badge text-bg-warning">PARCIAL</span>
+                            <span th:if="${venda.status.name() == 'CANCELADA'}" class="badge text-bg-danger">CANCELADA</span>
+                        </div>
                     </div>
 
-                    <p class="text-secondary small mb-3" th:text="${#temporals.format(venda.criadoEm, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</p>
+                    <ul class="list-unstyled small mb-3">
+                        <li th:each="item : ${venda.itens}" class="border-top py-2">
+                            <span class="fw-semibold" th:text="${item.produto.codigo}">COD</span>
+                            <span th:text="' - ' + ${item.produto.nome}">Produto</span>
+                            <span class="text-secondary" th:text="' | qtd. ' + ${item.quantidade}">qtd. 1</span>
+                            <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger ms-1">cancelado</span>
+                        </li>
+                    </ul>
 
                     <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <span class="text-secondary small d-block">Quantidade</span>
-                            <strong th:text="${venda.quantidade}">1</strong>
-                        </div>
                         <div class="col-6">
                             <span class="text-secondary small d-block">Pagamento</span>
                             <strong th:text="${venda.formaPagamento}">PIX</strong>
                         </div>
                         <div class="col-6">
-                            <span class="text-secondary small d-block">Preço unitário</span>
-                            <strong th:text="${#numbers.formatCurrency(venda.precoUnitario)}">R$ 0,00</strong>
-                        </div>
-                        <div class="col-6">
                             <span class="text-secondary small d-block">Total</span>
                             <strong class="fs-5" th:text="${#numbers.formatCurrency(venda.valorTotal)}">R$ 0,00</strong>
                         </div>
+                        <div class="col-12">
+                            <span class="text-secondary small">Usuario:</span>
+                            <strong th:text="${venda.usuarioResponsavel}">usuario</strong>
+                        </div>
                     </div>
 
-                    <p class="mb-1 small">
-                        <span class="text-secondary">Usuária:</span>
-                        <strong th:text="${venda.usuarioResponsavel}">usuario</strong>
-                    </p>
-                    <p th:if="${venda.canceladaEm != null}" class="mb-3 small">
-                        <span class="text-secondary">Cancelada:</span>
-                        <strong th:text="${#temporals.format(venda.canceladaEm, 'dd/MM/yyyy HH:mm')}">data</strong>
-                        <span class="text-secondary">por</span>
-                        <strong th:text="${venda.usuarioCancelamento}">usuario</strong>
-                    </p>
-
-                    <a th:if="${venda.status.name() == 'CONCLUIDA' and (isAdmin or venda.usuarioResponsavel == username)}"
-                       th:href="@{/vendas/{id}/cancelar(id=${venda.id})}"
-                       class="btn btn-outline-danger w-100">Cancelar venda</a>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/vendas/{id}(id=${venda.id})}" class="btn btn-outline-primary">Detalhes</a>
+                        <a th:if="${vendaService.podeCancelarVenda(venda, username, isAdmin)}"
+                           th:href="@{/vendas/{id}/cancelar(id=${venda.id})}"
+                           class="btn btn-outline-danger">Cancelar venda</a>
+                    </div>
                 </div>
             </article>
 
@@ -85,44 +83,46 @@
                         <thead class="table-light">
                         <tr>
                             <th scope="col">Data/hora</th>
-                            <th scope="col">Código</th>
-                            <th scope="col">Produto</th>
-                            <th scope="col">Qtd.</th>
-                            <th scope="col">Preço unit.</th>
+                            <th scope="col">Venda</th>
+                            <th scope="col">Itens</th>
                             <th scope="col">Total</th>
                             <th scope="col">Pagamento</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Usuária</th>
-                            <th scope="col">Cancelada em</th>
-                            <th scope="col">Cancelada por</th>
-                            <th scope="col">Ações</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Acoes</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="venda : ${vendas}">
                             <td th:text="${#temporals.format(venda.criadoEm, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</td>
-                            <td class="fw-semibold" th:text="${venda.produto.codigo}">COD</td>
-                            <td th:text="${venda.produto.nome}">Produto</td>
-                            <td th:text="${venda.quantidade}">1</td>
-                            <td th:text="${#numbers.formatCurrency(venda.precoUnitario)}">R$ 0,00</td>
+                            <td class="fw-semibold" th:text="'#' + ${venda.id}">#1</td>
+                            <td>
+                                <div th:each="item : ${venda.itens}" class="small">
+                                    <span class="fw-semibold" th:text="${item.produto.codigo}">COD</span>
+                                    <span th:text="' - ' + ${item.produto.nome}">Produto</span>
+                                    <span class="text-secondary" th:text="' | qtd. ' + ${item.quantidade}">qtd. 1</span>
+                                    <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger ms-1">cancelado</span>
+                                </div>
+                            </td>
                             <td class="fw-bold" th:text="${#numbers.formatCurrency(venda.valorTotal)}">R$ 0,00</td>
                             <td th:text="${venda.formaPagamento}">PIX</td>
                             <td>
                                 <span th:if="${venda.status.name() == 'CONCLUIDA'}" class="badge text-bg-success">CONCLUIDA</span>
+                                <span th:if="${venda.status.name() == 'PARCIALMENTE_CANCELADA'}" class="badge text-bg-warning">PARCIALMENTE_CANCELADA</span>
                                 <span th:if="${venda.status.name() == 'CANCELADA'}" class="badge text-bg-danger">CANCELADA</span>
                             </td>
                             <td th:text="${venda.usuarioResponsavel}">usuario</td>
-                            <td th:text="${venda.canceladaEm != null ? #temporals.format(venda.canceladaEm, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
-                            <td th:text="${venda.usuarioCancelamento ?: '-'}">-</td>
                             <td>
-                                <a th:if="${venda.status.name() == 'CONCLUIDA' and (isAdmin or venda.usuarioResponsavel == username)}"
-                                   th:href="@{/vendas/{id}/cancelar(id=${venda.id})}"
-                                   class="btn btn-sm btn-outline-danger">Cancelar</a>
-                                <span th:unless="${venda.status.name() == 'CONCLUIDA' and (isAdmin or venda.usuarioResponsavel == username)}" class="text-secondary">-</span>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/vendas/{id}(id=${venda.id})}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                                    <a th:if="${vendaService.podeCancelarVenda(venda, username, isAdmin)}"
+                                       th:href="@{/vendas/{id}/cancelar(id=${venda.id})}"
+                                       class="btn btn-sm btn-outline-danger">Cancelar</a>
+                                </div>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(vendas)}">
-                            <td colspan="12" class="text-center text-secondary py-4">Nenhuma venda registrada.</td>
+                            <td colspan="8" class="text-center text-secondary py-4">Nenhuma venda registrada.</td>
                         </tr>
                         </tbody>
                     </table>

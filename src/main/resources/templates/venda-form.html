@@ -9,55 +9,76 @@
 <body class="bg-light">
 <main class="py-4">
     <div class="container">
-        <div class="mx-auto" style="max-width: 720px;">
-            <div class="mb-4">
-                <h1 class="display-6 fw-bold mb-1">Nova venda</h1>
-                <p class="text-secondary mb-0">Escolha um produto, confirme a quantidade e registre a venda.</p>
+        <div class="mx-auto" style="max-width: 900px;">
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-4">
+                <div>
+                    <h1 class="display-6 fw-bold mb-1">Nova venda</h1>
+                    <p class="text-secondary mb-0">Adicione um ou mais produtos na mesma venda.</p>
+                </div>
+                <a th:href="@{/vendas}" class="btn btn-outline-primary btn-lg align-self-sm-start">Voltar</a>
             </div>
 
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <form th:action="@{/vendas}" th:object="${vendaForm}" method="post" id="vendaForm" novalidate>
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <form th:action="@{/vendas}" th:object="${vendaForm}" method="post" id="vendaForm" novalidate>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
-                            <p class="mb-0" th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</p>
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                    <p class="mb-0" th:each="erro : ${#fields.globalErrors()}" th:text="${erro}">Erro</p>
+                </div>
+                <div th:if="${#fields.hasErrors('itens')}" class="alert alert-danger" role="alert" th:errors="*{itens}"></div>
+                <div id="formAlert" class="alert alert-warning d-none" role="alert"></div>
+
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="produtoFiltro" class="form-label">Buscar produto</label>
+                                <input type="search" class="form-control form-control-lg" id="produtoFiltro" placeholder="Digite codigo ou nome">
+                            </div>
+
+                            <div class="col-12 col-lg-7">
+                                <label for="produtoId" class="form-label">Produto</label>
+                                <select class="form-select form-select-lg" id="produtoId">
+                                    <option value="">Selecione</option>
+                                    <option th:each="produto : ${produtos}"
+                                            th:value="${produto.id}"
+                                            th:attr="data-codigo=${produto.codigo},data-nome=${produto.nome},data-estoque=${produto.quantidadeEstoque},data-preco=${produto.precoVenda}"
+                                            th:text="${produto.codigo + ' - ' + produto.nome + ' - Estoque: ' + produto.quantidadeEstoque + ' - ' + #numbers.formatCurrency(produto.precoVenda)}">
+                                        Produto
+                                    </option>
+                                </select>
+                                <div class="form-text">A lista mostra produtos ativos com estoque.</div>
+                            </div>
+
+                            <div class="col-12 col-sm-5 col-lg-3">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <input type="number" class="form-control form-control-lg" id="quantidade" min="1" step="1" inputmode="numeric" value="1">
+                            </div>
+
+                            <div class="col-12 col-sm-7 col-lg-2 d-grid align-items-end">
+                                <button type="button" class="btn btn-primary btn-lg" id="adicionarItem">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                            <h2 class="h5 fw-bold mb-0">Itens da venda</h2>
+                            <strong class="fs-5" id="totalVenda">R$ 0,00</strong>
                         </div>
 
-                        <div id="formAlert" class="alert alert-warning d-none" role="alert"></div>
-
-                        <div class="mb-3">
-                            <label for="produtoFiltro" class="form-label">Buscar produto</label>
-                            <input type="search" class="form-control form-control-lg" id="produtoFiltro" placeholder="Digite código ou nome">
+                        <div id="itensVazios" class="text-center text-secondary py-3">
+                            Nenhum item adicionado.
                         </div>
 
-                        <div class="mb-3">
-                            <label for="produtoId" class="form-label">Produto</label>
-                            <select th:field="*{produtoId}" class="form-select form-select-lg" th:errorclass="is-invalid" id="produtoId" required>
-                                <option value="">Selecione</option>
-                                <option th:each="produto : ${produtos}"
-                                        th:value="${produto.id}"
-                                        th:attr="data-codigo=${produto.codigo},data-nome=${produto.nome},data-estoque=${produto.quantidadeEstoque},data-preco=${produto.precoVenda}"
-                                        th:text="${produto.codigo + ' - ' + produto.nome + ' - Estoque: ' + produto.quantidadeEstoque + ' - ' + #numbers.formatCurrency(produto.precoVenda)}">
-                                    Produto
-                                </option>
-                            </select>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('produtoId')}" th:errors="*{produtoId}"></div>
-                            <div class="form-text">A lista mostra apenas produtos ativos com estoque.</div>
-                        </div>
+                        <div id="itensVenda" class="d-grid gap-2"></div>
+                        <div id="itensHidden"></div>
+                    </div>
+                </div>
 
-                        <div class="mb-3">
-                            <label for="quantidade" class="form-label">Quantidade</label>
-                            <input type="number" th:field="*{quantidade}" class="form-control form-control-lg" th:errorclass="is-invalid" id="quantidade" min="1" step="1" inputmode="numeric" required>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidade')}" th:errors="*{quantidade}"></div>
-                        </div>
-
-                        <div class="d-grid gap-2 d-flex mb-3" role="group" aria-label="Quantidades rápidas">
-                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="1">1</button>
-                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="2">2</button>
-                            <button type="button" class="btn btn-outline-primary btn-lg flex-fill quantidade-rapida" data-quantidade="3">3</button>
-                        </div>
-
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
                         <div class="mb-4">
                             <label for="formaPagamento" class="form-label">Forma de pagamento</label>
                             <select th:field="*{formaPagamento}" class="form-select form-select-lg" th:errorclass="is-invalid" id="formaPagamento" required>
@@ -67,26 +88,13 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('formaPagamento')}" th:errors="*{formaPagamento}"></div>
                         </div>
 
-                        <section class="border rounded p-3 mb-4 bg-light" aria-live="polite">
-                            <h2 class="h6 fw-bold mb-3">Resumo</h2>
-                            <p class="mb-2" id="resumoProduto">Escolha um produto para ver o resumo da venda.</p>
-                            <div class="row g-2 small text-secondary">
-                                <div class="col-6">Quantidade</div>
-                                <div class="col-6 text-end text-dark fw-semibold" id="resumoQuantidade">-</div>
-                                <div class="col-6">Preço unitário</div>
-                                <div class="col-6 text-end text-dark fw-semibold" id="resumoPreco">-</div>
-                                <div class="col-6">Total estimado</div>
-                                <div class="col-6 text-end text-dark fw-bold fs-5" id="resumoTotal">-</div>
-                            </div>
-                        </section>
-
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg py-3">Registrar venda</button>
-                            <a th:href="@{/vendas}" class="btn btn-outline-secondary btn-lg">Voltar</a>
+                            <button type="submit" class="btn btn-success btn-lg py-3">Registrar venda</button>
+                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-lg">Painel</a>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </main>
@@ -96,67 +104,101 @@
         const filtro = document.getElementById('produtoFiltro');
         const produto = document.getElementById('produtoId');
         const quantidade = document.getElementById('quantidade');
+        const adicionarItem = document.getElementById('adicionarItem');
+        const itensVenda = document.getElementById('itensVenda');
+        const itensHidden = document.getElementById('itensHidden');
+        const itensVazios = document.getElementById('itensVazios');
+        const totalVenda = document.getElementById('totalVenda');
         const form = document.getElementById('vendaForm');
         const alertBox = document.getElementById('formAlert');
-        const resumoProduto = document.getElementById('resumoProduto');
-        const resumoQuantidade = document.getElementById('resumoQuantidade');
-        const resumoPreco = document.getElementById('resumoPreco');
-        const resumoTotal = document.getElementById('resumoTotal');
         const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const itens = [];
 
-        function produtoSelecionado() {
+        function selecionado() {
             return produto.options[produto.selectedIndex];
         }
 
-        function precoSelecionado() {
-            const selecionado = produtoSelecionado();
-            if (!selecionado || !selecionado.dataset.preco) {
-                return null;
-            }
-            return Number(selecionado.dataset.preco.replace(',', '.'));
-        }
-
-        function estoqueSelecionado() {
-            const selecionado = produtoSelecionado();
-            return selecionado && selecionado.dataset.estoque ? Number(selecionado.dataset.estoque) : null;
+        function numero(valor) {
+            return Number(String(valor || '0').replace(',', '.'));
         }
 
         function mostrarAlerta(mensagem) {
-            if (!mensagem) {
-                alertBox.classList.add('d-none');
-                alertBox.textContent = '';
-                return;
-            }
-            alertBox.textContent = mensagem;
-            alertBox.classList.remove('d-none');
+            alertBox.textContent = mensagem || '';
+            alertBox.classList.toggle('d-none', !mensagem);
         }
 
-        function atualizarResumo() {
-            const selecionado = produtoSelecionado();
-            const qtd = Number(quantidade.value);
-            const preco = precoSelecionado();
-            const estoque = estoqueSelecionado();
+        function renderizar() {
+            itensVenda.innerHTML = '';
+            itensHidden.innerHTML = '';
+            itensVazios.classList.toggle('d-none', itens.length > 0);
 
+            let total = 0;
+            itens.forEach((item, index) => {
+                total += item.total;
+
+                const linha = document.createElement('div');
+                linha.className = 'border rounded p-3 bg-white';
+                linha.innerHTML = `
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <p class="fw-bold mb-1">${item.codigo}</p>
+                            <p class="mb-1">${item.nome}</p>
+                            <p class="small text-secondary mb-0">${item.quantidade} x ${moeda.format(item.preco)}</p>
+                        </div>
+                        <div class="text-end">
+                            <strong class="d-block mb-2">${moeda.format(item.total)}</strong>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-remover="${index}">Remover</button>
+                        </div>
+                    </div>
+                `;
+                itensVenda.appendChild(linha);
+
+                itensHidden.insertAdjacentHTML('beforeend', `
+                    <input type="hidden" name="itens[${index}].produtoId" value="${item.id}">
+                    <input type="hidden" name="itens[${index}].quantidade" value="${item.quantidade}">
+                `);
+            });
+
+            totalVenda.textContent = moeda.format(total);
+        }
+
+        function adicionar() {
             mostrarAlerta('');
+            const option = selecionado();
+            const qtd = Number(quantidade.value);
 
-            if (!selecionado || !selecionado.value) {
-                resumoProduto.textContent = 'Escolha um produto para ver o resumo da venda.';
-                resumoQuantidade.textContent = '-';
-                resumoPreco.textContent = '-';
-                resumoTotal.textContent = '-';
+            if (!option || !option.value) {
+                mostrarAlerta('Selecione um produto.');
+                return;
+            }
+            if (!qtd || qtd <= 0) {
+                mostrarAlerta('Informe uma quantidade maior que zero.');
+                return;
+            }
+            if (itens.some((item) => item.id === option.value)) {
+                mostrarAlerta('Este produto ja foi adicionado na venda.');
                 return;
             }
 
-            resumoProduto.textContent = `${selecionado.dataset.codigo} - ${selecionado.dataset.nome} · Estoque: ${estoque}`;
-            resumoQuantidade.textContent = qtd > 0 ? String(qtd) : '-';
-            resumoPreco.textContent = preco !== null ? moeda.format(preco) : '-';
-            resumoTotal.textContent = qtd > 0 && preco !== null ? moeda.format(preco * qtd) : '-';
-
-            if (!qtd || qtd <= 0) {
-                mostrarAlerta('Informe uma quantidade maior que zero.');
-            } else if (estoque !== null && qtd > estoque) {
-                mostrarAlerta('A quantidade informada é maior que o estoque disponível.');
+            const estoque = Number(option.dataset.estoque);
+            if (qtd > estoque) {
+                mostrarAlerta('A quantidade informada e maior que o estoque disponivel.');
+                return;
             }
+
+            const preco = numero(option.dataset.preco);
+            itens.push({
+                id: option.value,
+                codigo: option.dataset.codigo,
+                nome: option.dataset.nome,
+                quantidade: qtd,
+                preco,
+                total: preco * qtd
+            });
+
+            produto.value = '';
+            quantidade.value = '1';
+            renderizar();
         }
 
         filtro.addEventListener('input', () => {
@@ -171,23 +213,25 @@
             });
         });
 
-        document.querySelectorAll('.quantidade-rapida').forEach((button) => {
-            button.addEventListener('click', () => {
-                quantidade.value = button.dataset.quantidade;
-                atualizarResumo();
-            });
+        adicionarItem.addEventListener('click', adicionar);
+        itensVenda.addEventListener('click', (event) => {
+            const botao = event.target.closest('[data-remover]');
+            if (!botao) {
+                return;
+            }
+            itens.splice(Number(botao.dataset.remover), 1);
+            renderizar();
         });
 
-        produto.addEventListener('change', atualizarResumo);
-        quantidade.addEventListener('input', atualizarResumo);
         form.addEventListener('submit', (event) => {
-            atualizarResumo();
-            if (!produto.value || Number(quantidade.value) <= 0) {
+            mostrarAlerta('');
+            if (itens.length === 0) {
                 event.preventDefault();
+                mostrarAlerta('Adicione pelo menos um item antes de registrar a venda.');
             }
         });
 
-        atualizarResumo();
+        renderizar();
     })();
 </script>
 </body>

@@ -1,35 +1,28 @@
 package br.com.estoqueinox.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.com.estoqueinox.model.FormaPagamento;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 public class VendaForm {
 
-    @NotNull(message = "Selecione um produto.")
-    private Long produtoId;
-
-    @NotNull(message = "Informe a quantidade.")
-    @Positive(message = "A quantidade deve ser maior que zero.")
-    private Integer quantidade = 1;
+    @Valid
+    @Size(min = 1, message = "Adicione pelo menos um item.")
+    private List<VendaItemForm> itens = new ArrayList<>();
 
     @NotNull(message = "Selecione a forma de pagamento.")
     private FormaPagamento formaPagamento;
 
-    public Long getProdutoId() {
-        return produtoId;
+    public List<VendaItemForm> getItens() {
+        return itens;
     }
 
-    public void setProdutoId(Long produtoId) {
-        this.produtoId = produtoId;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
+    public void setItens(List<VendaItemForm> itens) {
+        this.itens = itens;
     }
 
     public FormaPagamento getFormaPagamento() {

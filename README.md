@@ -1,8 +1,8 @@
 # Estoque Inox
 
-Sistema web mobile-first para controle simples de estoque e vendas de uma banca de bijuterias de aço inox.
+Sistema web mobile-first para controle simples de estoque e vendas de uma banca de bijuterias de aco inox.
 
-Nesta etapa inicial, o projeto contém a base da aplicação Spring Boot com Thymeleaf, autenticação em memória, banco H2 para desenvolvimento e modelagem inicial de categorias e produtos.
+O projeto ja possui base Spring Boot com Thymeleaf, autenticacao em memoria, H2 para desenvolvimento, CRUD administrativo de produtos/categorias, movimentacoes de estoque e venda com multiplos itens.
 
 ## Tecnologias
 
@@ -27,32 +27,35 @@ Depois, acesse:
 http://localhost:8080
 ```
 
-## Usuários de teste
+## Usuarios de teste
 
-| Usuário | Senha | Perfil |
+| Usuario | Senha | Perfil |
 | --- | --- | --- |
 | `admin` | `admin123` | `ADMIN` |
 | `vendedora` | `venda123` | `VENDEDORA` |
 
-## Rotas iniciais
+## Rotas principais
 
-- `/`: página inicial pública
-- `/login`: login público
-- `/dashboard`: painel para usuários autenticados
-- `/produtos`: lista temporária de produtos para usuários autenticados
+- `/`: pagina inicial publica
+- `/login`: login publico
+- `/dashboard`: painel para usuarios autenticados
+- `/produtos`: consulta de produtos para `ADMIN` e `VENDEDORA`
 - `/vendas`: listagem de vendas para `ADMIN` e `VENDEDORA`
-- `/vendas/nova`: registro de venda simples para `ADMIN` e `VENDEDORA`
+- `/vendas/nova`: registro de venda com um ou mais itens
+- `/vendas/{id}`: detalhe da venda
+- `/vendas/{id}/cancelar`: cancelamento da venda inteira
+- `/vendas/{vendaId}/itens/{itemId}/cancelar`: cancelamento de um item da venda
 - `/admin`: acesso apenas para `ADMIN`
 - `/admin/produtos`: gerenciamento de produtos para `ADMIN`
 - `/admin/categorias`: gerenciamento de categorias para `ADMIN`
-- `/admin/estoque`: histórico de movimentações de estoque para `ADMIN`
+- `/admin/estoque`: historico de movimentacoes de estoque para `ADMIN`
 - `/admin/estoque/entrada`: registro de entrada de estoque para `ADMIN`
 - `/admin/estoque/ajuste`: ajuste manual de estoque para `ADMIN`
-- `/admin/produtos/{id}/movimentacoes`: histórico de estoque de um produto para `ADMIN`
+- `/admin/produtos/{id}/movimentacoes`: historico de estoque de um produto para `ADMIN`
 
 ## H2 Console
 
-O console do H2 está habilitado para desenvolvimento em:
+O console do H2 esta habilitado para desenvolvimento em:
 
 ```text
 http://localhost:8080/h2-console
@@ -66,55 +69,28 @@ User Name: sa
 Password:
 ```
 
-## Próximas etapas previstas
-
-- Controle de estoque e vendas
-- Migração futura para PostgreSQL
-
-## Teste manual do CRUD administrativo
-
-1. Acesse `/login` com `admin/admin123`.
-2. Entre em `/admin/produtos` para criar, editar, ativar ou desativar produtos.
-3. Entre em `/admin/categorias` para criar, editar, ativar ou desativar categorias.
-4. Acesse `/login` com `vendedora/venda123`.
-5. Confirme que `/produtos` abre para consulta.
-6. Confirme que `/admin/produtos` e `/admin/categorias` retornam acesso negado.
-
-## Teste manual de movimentações de estoque
-
-1. Acesse `/login` com `admin/admin123`.
-2. Entre em `/admin/estoque`.
-3. Use `/admin/estoque/entrada` para adicionar unidades a um produto.
-4. Use `/admin/estoque/ajuste` para ajustar a quantidade total de um produto.
-5. Confira o histórico geral em `/admin/estoque`.
-6. Confira o histórico de um produto em `/admin/produtos/{id}/movimentacoes`.
-7. Acesse `/login` com `vendedora/venda123` e confirme que `/admin/estoque` retorna acesso negado.
-
-## Teste manual de venda simples
+## Teste manual de venda com multiplos itens
 
 1. Acesse `/login` com `admin/admin123`.
 2. Entre em `/vendas/nova`.
-3. Use a busca para filtrar produto por código ou nome.
-4. Escolha o produto, altere a quantidade e confira o resumo com total estimado.
-5. Registre uma venda de um produto ativo com estoque.
-6. Confira a venda em `/vendas`.
-7. Confira a baixa de estoque em `/produtos` ou `/admin/produtos`.
-8. Confira a movimentação `VENDA` em `/admin/estoque`.
-9. Tente vender uma quantidade maior que o estoque e confirme a mensagem de erro.
-10. Acesse `/login` com `vendedora/venda123`.
-11. Registre uma venda em `/vendas/nova`.
-12. Confirme que `/vendas` mostra apenas as vendas dessa vendedora.
-13. Confirme que `/admin/estoque`, `/admin/produtos` e `/admin/categorias` retornam acesso negado.
+3. Adicione dois ou mais produtos diferentes na mesma venda.
+4. Registre a venda e confira a listagem em `/vendas`.
+5. Abra `/vendas/{id}` e confirme os itens, totais e status.
+6. Cancele um item pelo detalhe da venda.
+7. Confirme que a venda ficou `PARCIALMENTE_CANCELADA`.
+8. Confirme em `/admin/estoque` que houve movimentacao `CANCELAMENTO`.
+9. Registre outra venda e use `/vendas/{id}/cancelar`.
+10. Confirme que a venda ficou `CANCELADA` e que cada item foi estornado.
 
-## Teste manual de cancelamento de venda
+## Teste manual de permissoes
 
-1. Acesse `/login` com `admin/admin123`.
-2. Registre uma venda em `/vendas/nova`.
-3. Cancele a venda pelo botão `Cancelar` em `/vendas`.
-4. Confirme que a venda ficou com status `CANCELADA`.
-5. Confirme que o estoque voltou em `/admin/produtos`.
-6. Confirme que `/admin/estoque` mostra movimentação `CANCELAMENTO`.
-7. Tente cancelar a mesma venda novamente e confirme a mensagem de erro.
-8. Acesse `/login` com `vendedora/venda123`.
-9. Registre e cancele uma venda própria.
-10. Confirme que a vendedora não consegue cancelar venda registrada por outra pessoa.
+1. Acesse `/login` com `vendedora/venda123`.
+2. Confirme que `/produtos`, `/vendas` e `/vendas/nova` funcionam.
+3. Confirme que `/admin/produtos`, `/admin/categorias` e `/admin/estoque` retornam acesso negado.
+4. Registre uma venda como vendedora.
+5. Confirme que a vendedora ve e cancela apenas vendas proprias.
+
+## Proximas etapas previstas
+
+- Relatorios e filtros melhores
+- Migracao futura para PostgreSQL

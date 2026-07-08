@@ -2,21 +2,21 @@ package br.com.estoqueinox.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "vendas")
@@ -26,23 +26,12 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "produto_id", nullable = false)
-    private Produto produto;
-
-    @NotNull
-    @Positive
-    @Column(nullable = false)
-    private Integer quantidade;
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<VendaItem> itens = new ArrayList<>();
 
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal precoUnitario;
-
-    @NotNull
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorTotal;
+    private BigDecimal valorTotal = BigDecimal.ZERO;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -72,17 +61,7 @@ public class Venda {
     public Venda() {
     }
 
-    public Venda(
-            Produto produto,
-            Integer quantidade,
-            BigDecimal precoUnitario,
-            FormaPagamento formaPagamento,
-            String usuarioResponsavel
-    ) {
-        this.produto = produto;
-        this.quantidade = quantidade;
-        this.precoUnitario = precoUnitario;
-        this.valorTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+    public Venda(FormaPagamento formaPagamento, String usuarioResponsavel) {
         this.formaPagamento = formaPagamento;
         this.usuarioResponsavel = usuarioResponsavel;
         this.status = StatusVenda.CONCLUIDA;
@@ -91,26 +70,52 @@ public class Venda {
     @PrePersist
     public void prePersist() {
         criadoEm = LocalDateTime.now();
-        valorTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
         if (status == null) {
             status = StatusVenda.CONCLUIDA;
         }
+        recalcularValorTotal();
+    }
+
+    public void adicionarItem(VendaItem item) {
+        item.setVenda(this);
+        itens.add(item);
+        recalcularValorTotal();
+    }
+
+    public void cancelar(String username, String motivoCancelamento) {
+        status = StatusVenda.CANCELADA;
+        canceladaEm = LocalDateTime.now();
+        usuarioCancelamento = username;
+        this.motivoCancelamento = normalizarMotivo(motivoCancelamento);
+    }
+
+    public void atualizarStatusAposCancelamento(String username, String motivoCancelamento) {
+        boolean todosCancelados = itens.stream()
+                .allMatch(item -> item.getStatus() == StatusVendaItem.CANCELADO);
+        boolean algumCancelado = itens.stream()
+                .anyMatch(item -> item.getStatus() == StatusVendaItem.CANCELADO);
+
+        if (todosCancelados) {
+            cancelar(username, motivoCancelamento);
+        } else if (algumCancelado) {
+            status = StatusVenda.PARCIALMENTE_CANCELADA;
+        } else {
+            status = StatusVenda.CONCLUIDA;
+        }
+    }
+
+    public void recalcularValorTotal() {
+        valorTotal = itens.stream()
+                .map(VendaItem::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Long getId() {
         return id;
     }
 
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public BigDecimal getPrecoUnitario() {
-        return precoUnitario;
+    public List<VendaItem> getItens() {
+        return itens;
     }
 
     public BigDecimal getValorTotal() {
@@ -143,13 +148,6 @@ public class Venda {
 
     public String getMotivoCancelamento() {
         return motivoCancelamento;
-    }
-
-    public void cancelar(String username, String motivoCancelamento) {
-        status = StatusVenda.CANCELADA;
-        canceladaEm = LocalDateTime.now();
-        usuarioCancelamento = username;
-        this.motivoCancelamento = normalizarMotivo(motivoCancelamento);
     }
 
     private String normalizarMotivo(String motivoCancelamento) {
