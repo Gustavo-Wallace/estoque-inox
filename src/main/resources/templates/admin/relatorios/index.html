@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Relatorios - Estoque Inox</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="py-4">
+    <div class="container">
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-4">
+            <div>
+                <h1 class="fw-bold mb-1">Relatorios</h1>
+                <p class="text-secondary mb-0">
+                    Resumo de hoje:
+                    <span th:text="${#temporals.format(resumo.data, 'dd/MM/yyyy')}">01/01/2026</span>
+                </p>
+            </div>
+            <a th:href="@{/dashboard}" class="btn btn-outline-primary btn-lg align-self-sm-start">Painel</a>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Total bruto</span>
+                        <strong class="fs-4" th:text="${#numbers.formatCurrency(resumo.totalBruto)}">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Total liquido</span>
+                        <strong class="fs-4" th:text="${#numbers.formatCurrency(resumo.totalLiquido)}">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Itens vendidos</span>
+                        <strong class="fs-4" th:text="${resumo.itensVendidos}">0</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Estoque baixo</span>
+                        <strong class="fs-4" th:text="${#lists.size(resumo.produtosEstoqueBaixo)}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Vendas concluidas</span>
+                        <strong class="fs-4" th:text="${resumo.vendasConcluidas}">0</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Parcialmente canceladas</span>
+                        <strong class="fs-4" th:text="${resumo.vendasParcialmenteCanceladas}">0</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Canceladas</span>
+                        <strong class="fs-4" th:text="${resumo.vendasCanceladas}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-xl-3">
+                <a th:href="@{/admin/relatorios/vendas}" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 text-dark mb-2">Vendas por periodo</h2>
+                        <p class="text-secondary mb-0">Listar vendas e totais por forma de pagamento.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <a th:href="@{/admin/relatorios/produtos-mais-vendidos}" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 text-dark mb-2">Produtos mais vendidos</h2>
+                        <p class="text-secondary mb-0">Ver quantidade e valor vendido por produto.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <a th:href="@{/admin/relatorios/estoque-baixo}" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 text-dark mb-2">Estoque baixo</h2>
+                        <p class="text-secondary mb-0">Produtos ativos abaixo do estoque minimo.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <a th:href="@{/admin/relatorios/vendedoras}" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 text-dark mb-2">Vendas por vendedora</h2>
+                        <p class="text-secondary mb-0">Acompanhar totais por usuaria.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Totais por forma de pagamento</h2>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Forma</th>
+                                    <th>Bruto</th>
+                                    <th>Liquido</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="total : ${resumo.totaisPorFormaPagamento}">
+                                    <td th:text="${total.formaPagamento}">PIX</td>
+                                    <td th:text="${#numbers.formatCurrency(total.totalBruto)}">R$ 0,00</td>
+                                    <td class="fw-semibold" th:text="${#numbers.formatCurrency(total.totalLiquido)}">R$ 0,00</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Produtos com estoque baixo</h2>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Codigo</th>
+                                    <th>Produto</th>
+                                    <th>Estoque</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="produto : ${resumo.produtosEstoqueBaixo}">
+                                    <td class="fw-semibold" th:text="${produto.codigo}">COD</td>
+                                    <td th:text="${produto.nome}">Produto</td>
+                                    <td>
+                                        <span class="badge text-bg-warning" th:text="${produto.quantidadeEstoque + ' / min. ' + produto.estoqueMinimo}">0</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(resumo.produtosEstoqueBaixo)}">
+                                    <td colspan="3" class="text-center text-secondary py-3">Nenhum produto com estoque baixo.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

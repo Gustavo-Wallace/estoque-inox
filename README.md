@@ -52,6 +52,11 @@ http://localhost:8080
 - `/admin/estoque/entrada`: registro de entrada de estoque para `ADMIN`
 - `/admin/estoque/ajuste`: ajuste manual de estoque para `ADMIN`
 - `/admin/produtos/{id}/movimentacoes`: historico de estoque de um produto para `ADMIN`
+- `/admin/relatorios`: resumo do dia e links dos relatorios para `ADMIN`
+- `/admin/relatorios/vendas`: vendas por periodo para `ADMIN`
+- `/admin/relatorios/produtos-mais-vendidos`: produtos mais vendidos para `ADMIN`
+- `/admin/relatorios/estoque-baixo`: produtos com estoque baixo para `ADMIN`
+- `/admin/relatorios/vendedoras`: vendas agrupadas por vendedora para `ADMIN`
 
 ## H2 Console
 
@@ -89,6 +94,19 @@ Password:
 3. Confirme que `/admin/produtos`, `/admin/categorias` e `/admin/estoque` retornam acesso negado.
 4. Registre uma venda como vendedora.
 5. Confirme que a vendedora ve e cancela apenas vendas proprias.
+
+## Teste manual de relatorios
+
+1. Acesse `/login` com `admin/admin123`.
+2. Crie uma venda com multiplos itens.
+3. Crie outra venda e cancele apenas um item.
+4. Crie outra venda e cancele a venda inteira.
+5. Acesse `/admin/relatorios` e confira o resumo do dia.
+6. Acesse `/admin/relatorios/vendas` e verifique vendas concluidas, parciais e canceladas.
+7. Acesse `/admin/relatorios/produtos-mais-vendidos` e confirme que itens cancelados nao entram na quantidade.
+8. Acesse `/admin/relatorios/estoque-baixo` e confira produtos ativos com estoque menor ou igual ao minimo.
+9. Acesse `/admin/relatorios/vendedoras` e confira o agrupamento por usuario responsavel.
+10. Entre como `vendedora/venda123` e confirme que `/admin/relatorios` retorna acesso negado.
 
 ## Proximas etapas previstas
 

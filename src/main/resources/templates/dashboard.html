@@ -80,6 +80,15 @@
                     </div>
 
                     <div class="col-12 col-md-6" th:if="${isAdmin}">
+                        <a th:href="@{/admin/relatorios}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4 py-5">
+                                <h2 class="h5 text-dark mb-2">Relatorios</h2>
+                                <p class="text-secondary mb-0">Acompanhar vendas, produtos e estoque baixo.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6" th:if="${isAdmin}">
                         <a th:href="@{/admin}" class="card border-0 shadow-sm text-decoration-none h-100">
                             <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Area administrativa</h2>
