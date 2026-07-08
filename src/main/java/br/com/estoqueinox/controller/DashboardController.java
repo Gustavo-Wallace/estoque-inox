@@ -7,8 +7,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import br.com.estoqueinox.service.UsuarioService;
+
 @Controller
 public class DashboardController {
+
+    private final UsuarioService usuarioService;
+
+    public DashboardController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication authentication, Model model) {
@@ -31,6 +39,7 @@ public class DashboardController {
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
 
         model.addAttribute("username", authentication.getName());
+        model.addAttribute("nomeUsuario", usuarioService.buscarNomePorUsername(authentication.getName()));
         model.addAttribute("roles", roles);
         model.addAttribute("isAdmin", isAdmin);
     }

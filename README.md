@@ -2,7 +2,7 @@
 
 Sistema web mobile-first para controle simples de estoque e vendas de uma banca de bijuterias de aco inox.
 
-O projeto ja possui base Spring Boot com Thymeleaf, autenticacao em memoria, H2 para desenvolvimento, CRUD administrativo de produtos/categorias, movimentacoes de estoque e venda com multiplos itens.
+O projeto ja possui base Spring Boot com Thymeleaf, autenticacao persistida em banco, H2 para desenvolvimento, CRUD administrativo de produtos/categorias/usuarios, movimentacoes de estoque, venda com multiplos itens e relatorios administrativos.
 
 ## Tecnologias
 
@@ -57,6 +57,11 @@ http://localhost:8080
 - `/admin/relatorios/produtos-mais-vendidos`: produtos mais vendidos para `ADMIN`
 - `/admin/relatorios/estoque-baixo`: produtos com estoque baixo para `ADMIN`
 - `/admin/relatorios/vendedoras`: vendas agrupadas por vendedora para `ADMIN`
+- `/admin/usuarios`: gerenciamento de usuarios para `ADMIN`
+- `/admin/usuarios/novo`: cadastro de usuario para `ADMIN`
+- `/admin/usuarios/{id}/editar`: edicao de usuario para `ADMIN`
+- `/admin/usuarios/{id}/senha`: alteracao de senha para `ADMIN`
+- `/admin/usuarios/{id}/alternar-status`: ativar ou desativar usuario para `ADMIN`
 
 ## H2 Console
 
@@ -108,7 +113,20 @@ Password:
 9. Acesse `/admin/relatorios/vendedoras` e confira o agrupamento por usuario responsavel.
 10. Entre como `vendedora/venda123` e confirme que `/admin/relatorios` retorna acesso negado.
 
+## Teste manual de usuarios
+
+1. Acesse `/login` com `admin/admin123`.
+2. Entre em `/admin/usuarios`.
+3. Confirme que os usuarios iniciais `admin` e `vendedora` foram criados.
+4. Cadastre uma nova vendedora em `/admin/usuarios/novo`.
+5. Faca logout e entre com a nova vendedora.
+6. Confirme que ela acessa `/vendas`, `/vendas/nova` e `/produtos`.
+7. Confirme que ela nao acessa `/admin/usuarios` nem outras rotas `/admin/**`.
+8. Entre novamente como admin e altere a senha da nova vendedora.
+9. Confirme login com a nova senha.
+10. Desative a nova vendedora e confirme que ela nao consegue mais logar.
+
 ## Proximas etapas previstas
 
-- Relatorios e filtros melhores
+- Filtros e melhorias operacionais
 - Migracao futura para PostgreSQL

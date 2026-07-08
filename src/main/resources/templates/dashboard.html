@@ -16,7 +16,7 @@
                     <p class="lead text-secondary mb-3" th:text="${isAdmin} ? 'Painel administrativo' : 'Painel de vendas'">Painel</p>
                     <div class="d-flex flex-column flex-sm-row gap-2">
                         <span class="badge text-bg-light border text-secondary align-self-start">
-                            Usuario: <span th:text="${username}">usuario</span>
+                            Usuario: <span th:text="${nomeUsuario + ' (' + username + ')'}">usuario</span>
                         </span>
                         <span class="badge text-bg-light border text-secondary align-self-start">
                             Perfil: <span th:text="${roles}">PERFIL</span>
@@ -84,6 +84,15 @@
                             <div class="card-body p-4 py-5">
                                 <h2 class="h5 text-dark mb-2">Relatorios</h2>
                                 <p class="text-secondary mb-0">Acompanhar vendas, produtos e estoque baixo.</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6" th:if="${isAdmin}">
+                        <a th:href="@{/admin/usuarios}" class="card border-0 shadow-sm text-decoration-none h-100">
+                            <div class="card-body p-4 py-5">
+                                <h2 class="h5 text-dark mb-2">Usuarios</h2>
+                                <p class="text-secondary mb-0">Gerenciar acessos e perfis do sistema.</p>
                             </div>
                         </a>
                     </div>
