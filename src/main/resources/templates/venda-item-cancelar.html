@@ -27,11 +27,17 @@
                         <dt class="col-sm-4">Quantidade</dt>
                         <dd class="col-sm-8" th:text="${item.quantidade}">1</dd>
 
-                        <dt class="col-sm-4">Preco unitario</dt>
-                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.precoUnitario)}">R$ 0,00</dd>
+                        <dt class="col-sm-4">Preco original</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.precoOriginalUnitario)}">R$ 0,00</dd>
 
-                        <dt class="col-sm-4">Total do item</dt>
-                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.valorTotal)}">R$ 0,00</dd>
+                        <dt class="col-sm-4">Desconto unitario</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.descontoUnitario)}">R$ 0,00</dd>
+
+                        <dt class="col-sm-4">Preco final</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.precoFinalUnitario)}">R$ 0,00</dd>
+
+                        <dt class="col-sm-4">Total final do item</dt>
+                        <dd class="col-sm-8" th:text="${#numbers.formatCurrency(item.valorTotalFinal)}">R$ 0,00</dd>
                     </dl>
 
                     <form th:action="@{/vendas/{vendaId}/itens/{itemId}/cancelar(vendaId=${venda.id},itemId=${item.id})}" th:object="${cancelamentoVendaItemForm}" method="post">

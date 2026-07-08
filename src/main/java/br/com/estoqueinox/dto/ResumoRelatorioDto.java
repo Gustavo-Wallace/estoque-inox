@@ -9,6 +9,7 @@ import br.com.estoqueinox.model.Produto;
 public record ResumoRelatorioDto(
         LocalDate data,
         BigDecimal totalBruto,
+        BigDecimal totalDesconto,
         BigDecimal totalLiquido,
         long vendasConcluidas,
         long vendasParcialmenteCanceladas,

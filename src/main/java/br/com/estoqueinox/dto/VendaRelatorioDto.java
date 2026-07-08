@@ -13,6 +13,7 @@ public record VendaRelatorioDto(
         FormaPagamento formaPagamento,
         StatusVenda status,
         BigDecimal valorOriginal,
+        BigDecimal valorDesconto,
         BigDecimal valorLiquido
 ) {
 }

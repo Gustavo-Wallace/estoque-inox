@@ -8,6 +8,7 @@ public record VendasPeriodoRelatorioDto(
         LocalDate dataInicial,
         LocalDate dataFinal,
         BigDecimal totalBruto,
+        BigDecimal totalDesconto,
         BigDecimal totalLiquido,
         List<FormaPagamentoTotalDto> totaisPorFormaPagamento,
         List<VendaRelatorioDto> vendas

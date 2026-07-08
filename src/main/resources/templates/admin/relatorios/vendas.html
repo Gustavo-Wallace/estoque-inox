@@ -36,7 +36,7 @@
         </form>
 
         <div class="row g-3 mb-4">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <span class="text-secondary small d-block">Total bruto</span>
@@ -44,7 +44,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <span class="text-secondary small d-block">Desconto total</span>
+                        <strong class="fs-4" th:text="${#numbers.formatCurrency(relatorio.totalDesconto)}">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <span class="text-secondary small d-block">Total liquido</span>
@@ -63,6 +71,7 @@
                         <tr>
                             <th>Forma</th>
                             <th>Bruto</th>
+                            <th>Desconto</th>
                             <th>Liquido</th>
                         </tr>
                         </thead>
@@ -70,6 +79,7 @@
                         <tr th:each="total : ${relatorio.totaisPorFormaPagamento}">
                             <td th:text="${total.formaPagamento}">PIX</td>
                             <td th:text="${#numbers.formatCurrency(total.totalBruto)}">R$ 0,00</td>
+                            <td th:text="${#numbers.formatCurrency(total.totalDesconto)}">R$ 0,00</td>
                             <td class="fw-semibold" th:text="${#numbers.formatCurrency(total.totalLiquido)}">R$ 0,00</td>
                         </tr>
                         </tbody>
@@ -90,6 +100,7 @@
                             <th>Pagamento</th>
                             <th>Status</th>
                             <th>Original</th>
+                            <th>Desconto</th>
                             <th>Liquido</th>
                             <th>Acoes</th>
                         </tr>
@@ -106,13 +117,14 @@
                                 <span th:if="${venda.status.name() == 'CANCELADA'}" class="badge text-bg-danger">CANCELADA</span>
                             </td>
                             <td th:text="${#numbers.formatCurrency(venda.valorOriginal)}">R$ 0,00</td>
+                            <td th:text="${#numbers.formatCurrency(venda.valorDesconto)}">R$ 0,00</td>
                             <td class="fw-semibold" th:text="${#numbers.formatCurrency(venda.valorLiquido)}">R$ 0,00</td>
                             <td>
                                 <a th:href="@{/vendas/{id}(id=${venda.id})}" class="btn btn-sm btn-outline-primary">Detalhes</a>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(relatorio.vendas)}">
-                            <td colspan="8" class="text-center text-secondary py-4">Nenhuma venda no periodo.</td>
+                            <td colspan="9" class="text-center text-secondary py-4">Nenhuma venda no periodo.</td>
                         </tr>
                         </tbody>
                     </table>

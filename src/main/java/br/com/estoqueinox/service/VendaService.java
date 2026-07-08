@@ -1,5 +1,7 @@
 package br.com.estoqueinox.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,14 +70,25 @@ public class VendaService {
     public Venda registrarVenda(VendaForm form, String username) {
         validarFormulario(form);
 
-        Venda venda = new Venda(form.getFormaPagamento(), username);
+        List<ItemVendaValidado> itensValidados = new ArrayList<>();
         for (VendaItemForm itemForm : form.getItens()) {
             Produto produto = buscarProdutoParaVenda(itemForm.getProdutoId());
             validarEstoque(produto, itemForm.getQuantidade());
+            BigDecimal descontoUnitario = normalizarDesconto(itemForm.getDescontoUnitario());
+            validarDesconto(produto, descontoUnitario);
+            itensValidados.add(new ItemVendaValidado(produto, itemForm.getQuantidade(), descontoUnitario));
+        }
 
-            VendaItem item = new VendaItem(produto, itemForm.getQuantidade(), produto.getPrecoVenda());
+        Venda venda = new Venda(form.getFormaPagamento(), username);
+        for (ItemVendaValidado itemValidado : itensValidados) {
+            VendaItem item = new VendaItem(
+                    itemValidado.produto(),
+                    itemValidado.quantidade(),
+                    itemValidado.produto().getPrecoVenda(),
+                    itemValidado.descontoUnitario()
+            );
             venda.adicionarItem(item);
-            estoqueService.registrarBaixaPorVenda(produto, itemForm.getQuantidade(), username);
+            estoqueService.registrarBaixaPorVenda(itemValidado.produto(), itemValidado.quantidade(), username);
         }
 
         return vendaRepository.save(venda);
@@ -164,6 +177,9 @@ public class VendaService {
             if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
                 throw new IllegalArgumentException("A quantidade de todos os itens deve ser maior que zero.");
             }
+            if (item.getDescontoUnitario() != null && item.getDescontoUnitario().compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("O desconto nao pode ser negativo.");
+            }
             if (!produtoIds.add(item.getProdutoId())) {
                 throw new IllegalArgumentException("Nao repita o mesmo produto na venda.");
             }
@@ -187,6 +203,23 @@ public class VendaService {
         }
     }
 
+    private BigDecimal normalizarDesconto(BigDecimal descontoUnitario) {
+        if (descontoUnitario == null) {
+            return BigDecimal.ZERO;
+        }
+        return descontoUnitario;
+    }
+
+    private void validarDesconto(Produto produto, BigDecimal descontoUnitario) {
+        if (descontoUnitario.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O desconto nao pode ser negativo.");
+        }
+
+        if (descontoUnitario.compareTo(produto.getPrecoVenda()) > 0) {
+            throw new IllegalArgumentException("O desconto nao pode ser maior que o preco do produto " + produto.getNome() + ".");
+        }
+    }
+
     private VendaItem buscarItemDaVenda(Venda venda, Long itemId) {
         return venda.getItens().stream()
                 .filter(item -> item.getId().equals(itemId))
@@ -204,5 +237,8 @@ public class VendaService {
         if (venda.getStatus() == StatusVenda.CANCELADA) {
             throw new IllegalArgumentException("Esta venda ja foi cancelada.");
         }
+    }
+
+    private record ItemVendaValidado(Produto produto, Integer quantidade, BigDecimal descontoUnitario) {
     }
 }

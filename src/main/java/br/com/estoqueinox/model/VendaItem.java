@@ -1,6 +1,7 @@
 package br.com.estoqueinox.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -43,11 +44,27 @@ public class VendaItem {
 
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal precoUnitario;
+    private BigDecimal precoOriginalUnitario = BigDecimal.ZERO;
 
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorTotal;
+    private BigDecimal descontoUnitario = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal precoFinalUnitario = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalOriginal = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalDesconto = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalFinal = BigDecimal.ZERO;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -68,18 +85,23 @@ public class VendaItem {
     public VendaItem() {
     }
 
-    public VendaItem(Produto produto, Integer quantidade, BigDecimal precoUnitario) {
+    public VendaItem(Produto produto, Integer quantidade, BigDecimal precoOriginalUnitario, BigDecimal descontoUnitario) {
         this.produto = produto;
         this.quantidade = quantidade;
-        this.precoUnitario = precoUnitario;
-        this.valorTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+        this.precoOriginalUnitario = moeda(precoOriginalUnitario);
+        this.descontoUnitario = moeda(descontoUnitario == null ? BigDecimal.ZERO : descontoUnitario);
         this.status = StatusVendaItem.CONCLUIDO;
+        recalcularValores();
+    }
+
+    public VendaItem(Produto produto, Integer quantidade, BigDecimal precoOriginalUnitario) {
+        this(produto, quantidade, precoOriginalUnitario, BigDecimal.ZERO);
     }
 
     @PrePersist
     public void prePersist() {
         criadoEm = LocalDateTime.now();
-        valorTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+        recalcularValores();
         if (status == null) {
             status = StatusVendaItem.CONCLUIDO;
         }
@@ -90,6 +112,15 @@ public class VendaItem {
         canceladoEm = LocalDateTime.now();
         usuarioCancelamento = username;
         this.motivoCancelamento = normalizarMotivo(motivoCancelamento);
+    }
+
+    public void recalcularValores() {
+        precoOriginalUnitario = moeda(precoOriginalUnitario);
+        descontoUnitario = moeda(descontoUnitario);
+        precoFinalUnitario = moeda(precoOriginalUnitario.subtract(descontoUnitario));
+        valorTotalOriginal = moeda(precoOriginalUnitario.multiply(BigDecimal.valueOf(quantidade)));
+        valorTotalDesconto = moeda(descontoUnitario.multiply(BigDecimal.valueOf(quantidade)));
+        valorTotalFinal = moeda(precoFinalUnitario.multiply(BigDecimal.valueOf(quantidade)));
     }
 
     public Long getId() {
@@ -112,12 +143,36 @@ public class VendaItem {
         return quantidade;
     }
 
+    public BigDecimal getPrecoOriginalUnitario() {
+        return precoOriginalUnitario;
+    }
+
+    public BigDecimal getDescontoUnitario() {
+        return descontoUnitario;
+    }
+
+    public BigDecimal getPrecoFinalUnitario() {
+        return precoFinalUnitario;
+    }
+
+    public BigDecimal getValorTotalOriginal() {
+        return valorTotalOriginal;
+    }
+
+    public BigDecimal getValorTotalDesconto() {
+        return valorTotalDesconto;
+    }
+
+    public BigDecimal getValorTotalFinal() {
+        return valorTotalFinal;
+    }
+
     public BigDecimal getPrecoUnitario() {
-        return precoUnitario;
+        return precoFinalUnitario;
     }
 
     public BigDecimal getValorTotal() {
-        return valorTotal;
+        return valorTotalFinal;
     }
 
     public StatusVendaItem getStatus() {
@@ -138,6 +193,13 @@ public class VendaItem {
 
     public LocalDateTime getCriadoEm() {
         return criadoEm;
+    }
+
+    private BigDecimal moeda(BigDecimal valor) {
+        if (valor == null) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+        return valor.setScale(2, RoundingMode.HALF_UP);
     }
 
     private String normalizarMotivo(String motivoCancelamento) {

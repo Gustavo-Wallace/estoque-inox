@@ -48,6 +48,7 @@ public class RelatorioService {
         return new ResumoRelatorioDto(
                 hoje,
                 calcularTotalBruto(vendas),
+                calcularTotalDesconto(vendas),
                 calcularTotalLiquido(vendas),
                 contarPorStatus(vendas, StatusVenda.CONCLUIDA),
                 contarPorStatus(vendas, StatusVenda.PARCIALMENTE_CANCELADA),
@@ -69,7 +70,8 @@ public class RelatorioService {
                         venda.getUsuarioResponsavel(),
                         venda.getFormaPagamento(),
                         venda.getStatus(),
-                        venda.getValorTotal(),
+                        venda.getValorTotalOriginal(),
+                        venda.getValorTotalDesconto(),
                         calcularValorLiquido(venda)
                 ))
                 .toList();
@@ -78,6 +80,7 @@ public class RelatorioService {
                 periodo.dataInicial(),
                 periodo.dataFinal(),
                 calcularTotalBruto(vendas),
+                calcularTotalDesconto(vendas),
                 calcularTotalLiquido(vendas),
                 calcularTotaisPorFormaPagamento(vendas),
                 linhas
@@ -103,7 +106,7 @@ public class RelatorioService {
                                     produto.getCategoria().getNome()
                             )
                     );
-                    agrupado.adicionar(item.getQuantidade(), item.getValorTotal());
+                    agrupado.adicionar(item.getQuantidade(), item.getValorTotalFinal());
                 });
 
         return agrupados.values().stream()
@@ -157,7 +160,15 @@ public class RelatorioService {
 
     private BigDecimal calcularTotalBruto(List<Venda> vendas) {
         return vendas.stream()
-                .map(Venda::getValorTotal)
+                .map(Venda::getValorTotalOriginal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calcularTotalDesconto(List<Venda> vendas) {
+        return vendas.stream()
+                .flatMap(venda -> venda.getItens().stream())
+                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
+                .map(VendaItem::getValorTotalDesconto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -170,7 +181,14 @@ public class RelatorioService {
     private BigDecimal calcularValorLiquido(Venda venda) {
         return venda.getItens().stream()
                 .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
-                .map(VendaItem::getValorTotal)
+                .map(VendaItem::getValorTotalFinal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calcularValorDesconto(Venda venda) {
+        return venda.getItens().stream()
+                .filter(item -> item.getStatus() == StatusVendaItem.CONCLUIDO)
+                .map(VendaItem::getValorTotalDesconto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -200,7 +218,11 @@ public class RelatorioService {
         }
 
         for (Venda venda : vendas) {
-            totais.get(venda.getFormaPagamento()).adicionar(venda.getValorTotal(), calcularValorLiquido(venda));
+            totais.get(venda.getFormaPagamento()).adicionar(
+                    venda.getValorTotalOriginal(),
+                    calcularValorDesconto(venda),
+                    calcularValorLiquido(venda)
+            );
         }
 
         return new ArrayList<>(totais.values()).stream()
@@ -214,19 +236,21 @@ public class RelatorioService {
     private static class TotalFormaAgrupado {
         private final FormaPagamento formaPagamento;
         private BigDecimal totalBruto = BigDecimal.ZERO;
+        private BigDecimal totalDesconto = BigDecimal.ZERO;
         private BigDecimal totalLiquido = BigDecimal.ZERO;
 
         private TotalFormaAgrupado(FormaPagamento formaPagamento) {
             this.formaPagamento = formaPagamento;
         }
 
-        private void adicionar(BigDecimal bruto, BigDecimal liquido) {
+        private void adicionar(BigDecimal bruto, BigDecimal desconto, BigDecimal liquido) {
             totalBruto = totalBruto.add(bruto);
+            totalDesconto = totalDesconto.add(desconto);
             totalLiquido = totalLiquido.add(liquido);
         }
 
         private FormaPagamentoTotalDto toDto() {
-            return new FormaPagamentoTotalDto(formaPagamento, totalBruto, totalLiquido);
+            return new FormaPagamentoTotalDto(formaPagamento, totalBruto, totalDesconto, totalLiquido);
         }
     }
 

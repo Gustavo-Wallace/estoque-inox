@@ -2,7 +2,7 @@
 
 Sistema web mobile-first para controle simples de estoque e vendas de uma banca de bijuterias de aco inox.
 
-O projeto ja possui base Spring Boot com Thymeleaf, autenticacao persistida em banco, H2 para desenvolvimento, CRUD administrativo de produtos/categorias/usuarios, movimentacoes de estoque, venda com multiplos itens e relatorios administrativos.
+O projeto ja possui base Spring Boot com Thymeleaf, autenticacao persistida em banco, H2 para desenvolvimento, CRUD administrativo de produtos/categorias/usuarios, movimentacoes de estoque, venda com multiplos itens, desconto por item e relatorios administrativos.
 
 ## Tecnologias
 
@@ -91,6 +91,19 @@ Password:
 8. Confirme em `/admin/estoque` que houve movimentacao `CANCELAMENTO`.
 9. Registre outra venda e use `/vendas/{id}/cancelar`.
 10. Confirme que a venda ficou `CANCELADA` e que cada item foi estornado.
+
+## Teste manual de desconto por item
+
+1. Acesse `/login` com `admin/admin123` ou `vendedora/venda123`.
+2. Entre em `/vendas/nova`.
+3. Adicione um produto sem desconto.
+4. Adicione outro produto com desconto unitario em reais.
+5. Confirme no resumo: total original, desconto total e total final.
+6. Registre a venda e abra `/vendas/{id}`.
+7. Confirme por item: preco original, desconto unitario, preco final e subtotal final.
+8. Tente desconto negativo e desconto maior que o preco do produto.
+9. Confirme que a venda invalida nao e salva.
+10. Confira em `/admin/relatorios` que o desconto total aparece e que produtos vendidos usam valor final.
 
 ## Teste manual de permissoes
 

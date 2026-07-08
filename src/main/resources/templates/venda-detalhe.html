@@ -27,15 +27,31 @@
             <div th:if="${erro}" class="alert alert-danger" role="alert" th:text="${erro}"></div>
 
             <div class="row g-3 mb-3">
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-4">
-                            <span class="text-secondary small d-block">Total</span>
-                            <strong class="fs-4" th:text="${#numbers.formatCurrency(venda.valorTotal)}">R$ 0,00</strong>
+                            <span class="text-secondary small d-block">Original</span>
+                            <strong class="fs-4" th:text="${#numbers.formatCurrency(venda.valorTotalOriginal)}">R$ 0,00</strong>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <span class="text-secondary small d-block">Desconto</span>
+                            <strong class="fs-4" th:text="${#numbers.formatCurrency(venda.valorTotalDesconto)}">R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <span class="text-secondary small d-block">Final</span>
+                            <strong class="fs-4" th:text="${#numbers.formatCurrency(venda.valorTotalFinal)}">R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-4">
                             <span class="text-secondary small d-block">Pagamento</span>
@@ -43,7 +59,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-4">
                             <span class="text-secondary small d-block">Status</span>
@@ -86,8 +102,12 @@
                             <tr>
                                 <th>Produto</th>
                                 <th>Qtd.</th>
-                                <th>Preco unit.</th>
-                                <th>Total</th>
+                                <th>Preco orig.</th>
+                                <th>Desc. unit.</th>
+                                <th>Preco final</th>
+                                <th>Subtotal orig.</th>
+                                <th>Desc. total</th>
+                                <th>Subtotal final</th>
                                 <th>Status</th>
                                 <th>Cancelamento</th>
                                 <th>Acoes</th>
@@ -100,8 +120,12 @@
                                     <span th:text="' - ' + ${item.produto.nome}">Produto</span>
                                 </td>
                                 <td th:text="${item.quantidade}">1</td>
-                                <td th:text="${#numbers.formatCurrency(item.precoUnitario)}">R$ 0,00</td>
-                                <td class="fw-semibold" th:text="${#numbers.formatCurrency(item.valorTotal)}">R$ 0,00</td>
+                                <td th:text="${#numbers.formatCurrency(item.precoOriginalUnitario)}">R$ 0,00</td>
+                                <td th:text="${#numbers.formatCurrency(item.descontoUnitario)}">R$ 0,00</td>
+                                <td th:text="${#numbers.formatCurrency(item.precoFinalUnitario)}">R$ 0,00</td>
+                                <td th:text="${#numbers.formatCurrency(item.valorTotalOriginal)}">R$ 0,00</td>
+                                <td th:text="${#numbers.formatCurrency(item.valorTotalDesconto)}">R$ 0,00</td>
+                                <td class="fw-semibold" th:text="${#numbers.formatCurrency(item.valorTotalFinal)}">R$ 0,00</td>
                                 <td>
                                     <span th:if="${item.status.name() == 'CONCLUIDO'}" class="badge text-bg-success">CONCLUIDO</span>
                                     <span th:if="${item.status.name() == 'CANCELADO'}" class="badge text-bg-danger">CANCELADO</span>

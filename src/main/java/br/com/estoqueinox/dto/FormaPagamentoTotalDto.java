@@ -7,6 +7,7 @@ import br.com.estoqueinox.model.FormaPagamento;
 public record FormaPagamentoTotalDto(
         FormaPagamento formaPagamento,
         BigDecimal totalBruto,
+        BigDecimal totalDesconto,
         BigDecimal totalLiquido
 ) {
 }

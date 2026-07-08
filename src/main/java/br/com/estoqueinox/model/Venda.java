@@ -34,6 +34,18 @@ public class Venda {
     private BigDecimal valorTotal = BigDecimal.ZERO;
 
     @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalOriginal = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalDesconto = BigDecimal.ZERO;
+
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotalFinal = BigDecimal.ZERO;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private FormaPagamento formaPagamento;
@@ -105,9 +117,16 @@ public class Venda {
     }
 
     public void recalcularValorTotal() {
-        valorTotal = itens.stream()
-                .map(VendaItem::getValorTotal)
+        valorTotalOriginal = itens.stream()
+                .map(VendaItem::getValorTotalOriginal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        valorTotalDesconto = itens.stream()
+                .map(VendaItem::getValorTotalDesconto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        valorTotalFinal = itens.stream()
+                .map(VendaItem::getValorTotalFinal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        valorTotal = valorTotalFinal;
     }
 
     public Long getId() {
@@ -120,6 +139,18 @@ public class Venda {
 
     public BigDecimal getValorTotal() {
         return valorTotal;
+    }
+
+    public BigDecimal getValorTotalOriginal() {
+        return valorTotalOriginal;
+    }
+
+    public BigDecimal getValorTotalDesconto() {
+        return valorTotalDesconto;
+    }
+
+    public BigDecimal getValorTotalFinal() {
+        return valorTotalFinal;
     }
 
     public FormaPagamento getFormaPagamento() {

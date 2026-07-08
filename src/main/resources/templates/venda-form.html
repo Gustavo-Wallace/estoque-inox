@@ -9,11 +9,11 @@
 <body class="bg-light">
 <main class="py-4">
     <div class="container">
-        <div class="mx-auto" style="max-width: 900px;">
+        <div class="mx-auto" style="max-width: 980px;">
             <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-4">
                 <div>
                     <h1 class="display-6 fw-bold mb-1">Nova venda</h1>
-                    <p class="text-secondary mb-0">Adicione um ou mais produtos na mesma venda.</p>
+                    <p class="text-secondary mb-0">Adicione produtos e aplique desconto por item quando necessario.</p>
                 </div>
                 <a th:href="@{/vendas}" class="btn btn-outline-primary btn-lg align-self-sm-start">Voltar</a>
             </div>
@@ -35,7 +35,7 @@
                                 <input type="search" class="form-control form-control-lg" id="produtoFiltro" placeholder="Digite codigo ou nome">
                             </div>
 
-                            <div class="col-12 col-lg-7">
+                            <div class="col-12 col-lg-6">
                                 <label for="produtoId" class="form-label">Produto</label>
                                 <select class="form-select form-select-lg" id="produtoId">
                                     <option value="">Selecione</option>
@@ -49,12 +49,17 @@
                                 <div class="form-text">A lista mostra produtos ativos com estoque.</div>
                             </div>
 
-                            <div class="col-12 col-sm-5 col-lg-3">
+                            <div class="col-12 col-sm-6 col-lg-2">
                                 <label for="quantidade" class="form-label">Quantidade</label>
                                 <input type="number" class="form-control form-control-lg" id="quantidade" min="1" step="1" inputmode="numeric" value="1">
                             </div>
 
-                            <div class="col-12 col-sm-7 col-lg-2 d-grid align-items-end">
+                            <div class="col-12 col-sm-6 col-lg-2">
+                                <label for="descontoUnitario" class="form-label">Desc. unitario</label>
+                                <input type="number" class="form-control form-control-lg" id="descontoUnitario" min="0" step="0.01" inputmode="decimal" value="0">
+                            </div>
+
+                            <div class="col-12 col-lg-2 d-grid align-items-end">
                                 <button type="button" class="btn btn-primary btn-lg" id="adicionarItem">Adicionar</button>
                             </div>
                         </div>
@@ -65,7 +70,7 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
                             <h2 class="h5 fw-bold mb-0">Itens da venda</h2>
-                            <strong class="fs-5" id="totalVenda">R$ 0,00</strong>
+                            <strong class="fs-5" id="totalFinalVenda">R$ 0,00</strong>
                         </div>
 
                         <div id="itensVazios" class="text-center text-secondary py-3">
@@ -74,6 +79,17 @@
 
                         <div id="itensVenda" class="d-grid gap-2"></div>
                         <div id="itensHidden"></div>
+
+                        <div class="border-top mt-4 pt-3">
+                            <div class="row g-2">
+                                <div class="col-6 text-secondary">Total original</div>
+                                <div class="col-6 text-end fw-semibold" id="totalOriginalVenda">R$ 0,00</div>
+                                <div class="col-6 text-secondary">Desconto total</div>
+                                <div class="col-6 text-end fw-semibold" id="totalDescontoVenda">R$ 0,00</div>
+                                <div class="col-6 text-secondary">Total final</div>
+                                <div class="col-6 text-end fw-bold fs-5" id="totalFinalResumo">R$ 0,00</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -104,11 +120,15 @@
         const filtro = document.getElementById('produtoFiltro');
         const produto = document.getElementById('produtoId');
         const quantidade = document.getElementById('quantidade');
+        const descontoUnitario = document.getElementById('descontoUnitario');
         const adicionarItem = document.getElementById('adicionarItem');
         const itensVenda = document.getElementById('itensVenda');
         const itensHidden = document.getElementById('itensHidden');
         const itensVazios = document.getElementById('itensVazios');
-        const totalVenda = document.getElementById('totalVenda');
+        const totalOriginalVenda = document.getElementById('totalOriginalVenda');
+        const totalDescontoVenda = document.getElementById('totalDescontoVenda');
+        const totalFinalVenda = document.getElementById('totalFinalVenda');
+        const totalFinalResumo = document.getElementById('totalFinalResumo');
         const form = document.getElementById('vendaForm');
         const alertBox = document.getElementById('formAlert');
         const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -132,9 +152,14 @@
             itensHidden.innerHTML = '';
             itensVazios.classList.toggle('d-none', itens.length > 0);
 
-            let total = 0;
+            let totalOriginal = 0;
+            let totalDesconto = 0;
+            let totalFinal = 0;
+
             itens.forEach((item, index) => {
-                total += item.total;
+                totalOriginal += item.valorOriginal;
+                totalDesconto += item.valorDesconto;
+                totalFinal += item.valorFinal;
 
                 const linha = document.createElement('div');
                 linha.className = 'border rounded p-3 bg-white';
@@ -142,11 +167,13 @@
                     <div class="d-flex justify-content-between gap-3">
                         <div>
                             <p class="fw-bold mb-1">${item.codigo}</p>
-                            <p class="mb-1">${item.nome}</p>
-                            <p class="small text-secondary mb-0">${item.quantidade} x ${moeda.format(item.preco)}</p>
+                            <p class="mb-2">${item.nome}</p>
+                            <p class="small text-secondary mb-1">${item.quantidade} x ${moeda.format(item.precoOriginal)} | desc. ${moeda.format(item.desconto)}</p>
+                            <p class="small mb-0">Final unit.: <strong>${moeda.format(item.precoFinal)}</strong></p>
                         </div>
                         <div class="text-end">
-                            <strong class="d-block mb-2">${moeda.format(item.total)}</strong>
+                            <span class="small text-secondary d-block">Subtotal</span>
+                            <strong class="d-block mb-2">${moeda.format(item.valorFinal)}</strong>
                             <button type="button" class="btn btn-outline-danger btn-sm" data-remover="${index}">Remover</button>
                         </div>
                     </div>
@@ -156,16 +183,21 @@
                 itensHidden.insertAdjacentHTML('beforeend', `
                     <input type="hidden" name="itens[${index}].produtoId" value="${item.id}">
                     <input type="hidden" name="itens[${index}].quantidade" value="${item.quantidade}">
+                    <input type="hidden" name="itens[${index}].descontoUnitario" value="${item.desconto.toFixed(2)}">
                 `);
             });
 
-            totalVenda.textContent = moeda.format(total);
+            totalOriginalVenda.textContent = moeda.format(totalOriginal);
+            totalDescontoVenda.textContent = moeda.format(totalDesconto);
+            totalFinalVenda.textContent = moeda.format(totalFinal);
+            totalFinalResumo.textContent = moeda.format(totalFinal);
         }
 
         function adicionar() {
             mostrarAlerta('');
             const option = selecionado();
             const qtd = Number(quantidade.value);
+            const desconto = numero(descontoUnitario.value);
 
             if (!option || !option.value) {
                 mostrarAlerta('Selecione um produto.');
@@ -173,6 +205,10 @@
             }
             if (!qtd || qtd <= 0) {
                 mostrarAlerta('Informe uma quantidade maior que zero.');
+                return;
+            }
+            if (desconto < 0) {
+                mostrarAlerta('O desconto nao pode ser negativo.');
                 return;
             }
             if (itens.some((item) => item.id === option.value)) {
@@ -186,18 +222,29 @@
                 return;
             }
 
-            const preco = numero(option.dataset.preco);
+            const precoOriginal = numero(option.dataset.preco);
+            if (desconto > precoOriginal) {
+                mostrarAlerta('O desconto nao pode ser maior que o preco do produto.');
+                return;
+            }
+
+            const precoFinal = precoOriginal - desconto;
             itens.push({
                 id: option.value,
                 codigo: option.dataset.codigo,
                 nome: option.dataset.nome,
                 quantidade: qtd,
-                preco,
-                total: preco * qtd
+                precoOriginal,
+                desconto,
+                precoFinal,
+                valorOriginal: precoOriginal * qtd,
+                valorDesconto: desconto * qtd,
+                valorFinal: precoFinal * qtd
             });
 
             produto.value = '';
             quantidade.value = '1';
+            descontoUnitario.value = '0';
             renderizar();
         }
 
