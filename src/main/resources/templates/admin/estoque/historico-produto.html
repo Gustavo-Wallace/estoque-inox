@@ -19,6 +19,7 @@
                 </p>
             </div>
             <div class="d-grid d-sm-flex gap-2">
+                <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-touch">Painel</a>
                 <a th:href="@{/admin/produtos}" class="btn btn-outline-primary btn-touch">Produtos</a>
                 <a th:href="@{/admin/estoque/entrada(produtoId=${produto.id})}" class="btn btn-primary btn-touch">Entrada</a>
                 <a th:href="@{/admin/estoque/ajuste(produtoId=${produto.id})}" class="btn btn-outline-primary btn-touch">Ajuste</a>

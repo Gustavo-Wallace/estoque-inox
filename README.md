@@ -153,6 +153,43 @@ Password:
 
 O H2 Console fica desabilitado no profile `postgres`.
 
+## Dados simulados de desenvolvimento
+
+Ao iniciar a aplicacao, o seed cria dados apenas quando ainda nao existem.
+
+Categorias simuladas:
+
+- Brincos
+- Aneis
+- Colares
+- Pulseiras
+- Correntes
+- Conjuntos
+- Piercings
+- Tornozeleiras
+
+Produtos simulados:
+
+- `BRI-001` - Brinco argola inox dourado pequeno
+- `BRI-002` - Brinco ponto de luz inox prata
+- `BRI-003` - Brinco coracao inox dourado
+- `ANE-001` - Anel inox liso
+- `ANE-002` - Anel inox pedra preta
+- `COL-001` - Colar inox ponto de luz
+- `COL-002` - Colar inox corrente veneziana
+- `PUL-001` - Pulseira inox elo portugues
+- `PUL-002` - Pulseira inox dourada fina
+- `COR-001` - Corrente inox masculina
+- `CON-001` - Conjunto colar e brinco inox
+- `TOR-001` - Tornozeleira inox coracao
+
+O seed nao cria vendas automaticamente para evitar duplicacao de movimentos e relatórios.
+
+## Roteiros de validacao
+
+- [Roteiro de teste manual](docs/roteiro-teste-manual.md)
+- [Checklist pre-piloto](docs/checklist-pre-piloto.md)
+
 ## Revisao de seguranca e regras criticas
 
 A revisao atual reforcou pontos importantes do backend:

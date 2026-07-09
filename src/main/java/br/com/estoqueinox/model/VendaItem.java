@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -121,6 +122,14 @@ public class VendaItem {
         recalcularValores();
     }
 
+    @PostLoad
+    public void postLoad() {
+        normalizarQuantidadeCanceladaLegada();
+        if (status == null) {
+            atualizarStatusPelaQuantidade();
+        }
+    }
+
     public void cancelar(String username, String motivoCancelamento) {
         cancelarQuantidade(getQuantidadeAtiva(), username, motivoCancelamento);
     }
@@ -133,7 +142,7 @@ public class VendaItem {
             throw new IllegalArgumentException("A quantidade a cancelar nao pode ser maior que a quantidade ativa do item.");
         }
 
-        quantidadeCancelada += quantidadeCancelar;
+        quantidadeCancelada = getQuantidadeCancelada() + quantidadeCancelar;
         atualizarStatusPelaQuantidade();
         canceladoEm = LocalDateTime.now();
         usuarioCancelamento = username;
@@ -171,11 +180,14 @@ public class VendaItem {
     }
 
     public Integer getQuantidadeCancelada() {
+        if (quantidadeCancelada == null) {
+            return status == StatusVendaItem.CANCELADO ? quantidade : 0;
+        }
         return quantidadeCancelada;
     }
 
     public Integer getQuantidadeAtiva() {
-        return quantidade - quantidadeCancelada;
+        return quantidade - getQuantidadeCancelada();
     }
 
     public BigDecimal getPrecoOriginalUnitario() {
@@ -256,7 +268,7 @@ public class VendaItem {
         if (quantidadeCancelada == null) {
             quantidadeCancelada = 0;
         }
-        if (quantidadeCancelada < 0 || quantidadeCancelada > quantidade) {
+        if (getQuantidadeCancelada() < 0 || getQuantidadeCancelada() > quantidade) {
             throw new IllegalArgumentException("A quantidade cancelada do item e invalida.");
         }
         if (precoOriginalUnitario != null && precoOriginalUnitario.compareTo(BigDecimal.ZERO) < 0) {
@@ -273,13 +285,25 @@ public class VendaItem {
     }
 
     private void atualizarStatusPelaQuantidade() {
-        if (quantidadeCancelada == 0) {
+        int cancelada = getQuantidadeCancelada();
+        if (cancelada == 0) {
             status = StatusVendaItem.CONCLUIDO;
-        } else if (quantidadeCancelada < quantidade) {
+        } else if (cancelada < quantidade) {
             status = StatusVendaItem.PARCIALMENTE_CANCELADO;
         } else {
             status = StatusVendaItem.CANCELADO;
         }
+    }
+
+    private void normalizarQuantidadeCanceladaLegada() {
+        if (quantidadeCancelada != null) {
+            return;
+        }
+        if (status == StatusVendaItem.CANCELADO && quantidade != null) {
+            quantidadeCancelada = quantidade;
+            return;
+        }
+        quantidadeCancelada = 0;
     }
 
     private String normalizarMotivo(String motivoCancelamento) {
