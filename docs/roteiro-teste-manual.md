@@ -7,14 +7,14 @@ Este roteiro simula um dia de uso real do Estoque Inox em uma banca de bijuteria
 1. Suba a aplicacao com H2 ou PostgreSQL.
 2. Acesse `http://localhost:8080`.
 3. Entre com `admin/admin123`.
-4. Confira se os produtos simulados aparecem em `/produtos` ou `/admin/produtos`.
+4. Se `APP_DEMO_DATA_ENABLED=true`, confira se os produtos simulados aparecem em `/produtos` ou `/admin/produtos`.
 
 ## Teste como ADMIN
 
 1. Acesse o dashboard.
 2. Abra `Categorias` e confirme as categorias:
    Brincos, Aneis, Colares, Pulseiras, Correntes, Conjuntos, Piercings e Tornozeleiras.
-3. Abra `Produtos` e confirme os produtos simulados.
+3. Se `APP_DEMO_DATA_ENABLED=true`, abra `Produtos` e confirme os produtos simulados.
 4. Cadastre uma nova vendedora em `Usuarios`.
 5. Abra `Estoque`.
 6. Registre uma entrada de estoque em um produto.
@@ -69,4 +69,3 @@ scripts\backup-postgres.bat
 2. Reinicie a aplicacao.
 3. Confirme que usuarios, produtos, vendas e movimentacoes continuam salvos.
 4. Rode `git status` e confirme que arquivos em `backups/` nao aparecem para commit.
-

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.Locale;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -25,32 +25,46 @@ public class DataLoader implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final boolean seedEnabled;
+    private final boolean demoDataEnabled;
 
     public DataLoader(
             CategoriaRepository categoriaRepository,
             ProdutoRepository produtoRepository,
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${app.seed.enabled:true}") boolean seedEnabled
+            @Value("${app.seed.enabled:true}") boolean seedEnabled,
+            @Value("${app.demo-data.enabled:false}") boolean demoDataEnabled
     ) {
         this.categoriaRepository = categoriaRepository;
         this.produtoRepository = produtoRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.seedEnabled = seedEnabled;
+        this.demoDataEnabled = demoDataEnabled;
     }
 
     @Override
     public void run(String... args) {
-        if (!seedEnabled) {
-            return;
+        if (seedEnabled) {
+            criarSeedEssencial();
         }
-        criarCategoriasIniciais();
-        criarProdutosSimulados();
+
+        if (demoDataEnabled) {
+            criarDadosDemonstrativos();
+        }
+    }
+
+    private void criarSeedEssencial() {
         criarUsuariosIniciais();
     }
 
-    private void criarCategoriasIniciais() {
+    private void criarDadosDemonstrativos() {
+        criarCategoriasDemonstrativas();
+        criarProdutosSimulados();
+        criarUsuariosDemonstrativos();
+    }
+
+    private void criarCategoriasDemonstrativas() {
         criarCategoriaSeNaoExistir("Brincos");
         criarCategoriaSeNaoExistir("Aneis");
         criarCategoriaSeNaoExistir("Colares");
@@ -78,6 +92,9 @@ public class DataLoader implements CommandLineRunner {
 
     private void criarUsuariosIniciais() {
         criarUsuarioSeNaoExistir("Administradora", "admin", "admin123", PerfilUsuario.ADMIN);
+    }
+
+    private void criarUsuariosDemonstrativos() {
         criarUsuarioSeNaoExistir("Vendedora Teste", "vendedora", "venda123", PerfilUsuario.VENDEDORA);
     }
 

@@ -88,6 +88,7 @@ DB_NAME=estoque_inox
 DB_USER=estoque_user
 DB_PASSWORD=senha_forte_aqui
 APP_SEED_ENABLED=true
+APP_DEMO_DATA_ENABLED=false
 BACKUP_KEEP_LAST=14
 ```
 
@@ -95,9 +96,11 @@ Cuidados:
 
 - use uma senha forte em `DB_PASSWORD`;
 - nao commite o `.env`;
-- use `APP_SEED_ENABLED=true` apenas no primeiro setup, se precisar criar dados iniciais;
+- use `APP_SEED_ENABLED=true` apenas no primeiro setup, se precisar criar o admin inicial;
+- mantenha `APP_DEMO_DATA_ENABLED=false` em producao real;
 - depois do primeiro setup, considere mudar para `APP_SEED_ENABLED=false`;
-- troque as senhas padrao dos usuarios seed logo depois do primeiro login.
+- troque a senha padrao do admin logo depois do primeiro login;
+- se `APP_SEED_ENABLED=false` e nao houver admin no banco, sera necessario criar o admin manualmente ou reabilitar o seed essencial.
 
 ## Passo 6 - Subir containers
 
@@ -128,13 +131,15 @@ Esse acesso por IP e HTTP puro e apenas para teste inicial. Para uso real, confi
 
 ## Passo 9 - Primeiro login e setup
 
-Se o seed estiver habilitado, acesse com o usuario admin inicial.
+Se o seed essencial estiver habilitado, acesse com o usuario admin inicial.
 
 Depois:
 
 - troque a senha do admin;
 - crie usuarias reais;
 - desative usuarios de teste;
+- confirme que `APP_DEMO_DATA_ENABLED=false` em producao real;
+- remova produtos fake se eles tiverem sido criados em um ambiente de teste;
 - cadastre produtos reais;
 - confira estoque inicial;
 - teste uma venda;

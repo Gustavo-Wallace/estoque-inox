@@ -3,8 +3,10 @@
 Use este checklist antes de testar o sistema com dados reais da banca.
 
 - [ ] Trocar as senhas padrao `admin123` e `venda123`.
+- [ ] Confirmar `APP_DEMO_DATA_ENABLED=false` no ambiente real.
 - [ ] Criar usuarias reais.
 - [ ] Desativar usuarios de teste que nao serao usados.
+- [ ] Remover produtos fake, se algum tiver sido criado.
 - [ ] Cadastrar ou revisar os produtos reais.
 - [ ] Conferir categorias reais.
 - [ ] Conferir estoque inicial de cada produto.
@@ -19,4 +21,3 @@ Use este checklist antes de testar o sistema com dados reais da banca.
 - [ ] Fazer backup antes de inserir ou alterar dados reais.
 - [ ] Nao usar `docker compose down -v` em ambiente com dados importantes.
 - [ ] Guardar o arquivo de backup em local seguro.
-

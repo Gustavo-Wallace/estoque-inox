@@ -183,10 +183,15 @@ DB_USER
 DB_PASSWORD
 SERVER_PORT
 APP_SEED_ENABLED
+APP_DEMO_DATA_ENABLED
 BACKUP_KEEP_LAST
 ```
 
-`APP_SEED_ENABLED=true` permite criar os dados iniciais caso ainda nao existam. Depois do primeiro setup real, deixe `APP_SEED_ENABLED=false`. O seed nao sobrescreve usuarios existentes, mas as senhas padrao (`admin/admin123` e `vendedora/venda123`) devem ser trocadas antes de qualquer uso real.
+`APP_SEED_ENABLED=true` permite criar o usuario admin inicial caso ainda nao exista. Depois do primeiro setup real, deixe `APP_SEED_ENABLED=false`.
+
+`APP_DEMO_DATA_ENABLED=true` cria dados demonstrativos, como categorias, produtos simulados e a vendedora de teste. Em producao real, mantenha `APP_DEMO_DATA_ENABLED=false`.
+
+O seed nao sobrescreve usuarios existentes, mas a senha padrao do admin (`admin/admin123`) deve ser trocada antes de qualquer uso real.
 
 O `ddl-auto=update` continua ativo por enquanto para facilitar esta fase. Antes de producao definitiva, o ideal e migrar para Flyway ou Liquibase.
 
@@ -254,9 +259,27 @@ Password:
 
 O H2 Console fica desabilitado no profile `postgres`.
 
-## Dados simulados de desenvolvimento
+## Seed e dados demonstrativos
 
-Ao iniciar a aplicacao, o seed cria dados apenas quando ainda nao existem.
+O projeto separa seed essencial de dados demonstrativos:
+
+- `APP_SEED_ENABLED`: cria apenas o usuario admin inicial, se ele nao existir.
+- `APP_DEMO_DATA_ENABLED`: cria categorias, produtos simulados e a vendedora de teste, se ainda nao existirem.
+
+Valores recomendados:
+
+| Ambiente | APP_SEED_ENABLED | APP_DEMO_DATA_ENABLED |
+| --- | --- | --- |
+| `dev` | `true` | `true` |
+| `postgres` local | `true` | `true` |
+| `prod` primeiro setup | `true` | `false` |
+| `prod` apos setup | `false` | `false` |
+
+Se `APP_SEED_ENABLED=false` e ainda nao existir admin no banco, sera necessario criar um admin manualmente ou habilitar o seed essencial no primeiro setup.
+
+Em producao real, nao habilite dados demonstrativos, a menos que seja um ambiente separado de teste.
+
+Os dados demonstrativos sao criados apenas quando ainda nao existem.
 
 Categorias simuladas:
 

@@ -8,6 +8,8 @@
 - [ ] `.env.example` atualizado.
 - [ ] `.env` ignorado no Git.
 - [ ] Senhas padrao identificadas.
+- [ ] Politica de seed revisada.
+- [ ] `APP_DEMO_DATA_ENABLED=false` definido para producao real.
 - [ ] H2 Console desabilitado em `prod`.
 - [ ] Profile `prod` testado localmente.
 - [ ] Exportacoes funcionando.
@@ -27,6 +29,7 @@
 - [ ] Senha forte configurada em `DB_PASSWORD`.
 - [ ] `SPRING_PROFILES_ACTIVE=prod` configurado.
 - [ ] `APP_SEED_ENABLED` revisado.
+- [ ] `APP_DEMO_DATA_ENABLED=false` confirmado.
 - [ ] Containers subiram.
 - [ ] Logs do app sem erro.
 - [ ] Logs do PostgreSQL sem erro.
@@ -40,6 +43,7 @@
 - [ ] Senha admin trocada.
 - [ ] Vendedoras reais criadas.
 - [ ] Usuarios de teste desativados.
+- [ ] Produtos fake removidos, se existirem.
 - [ ] Produtos reais cadastrados.
 - [ ] Estoque inicial conferido.
 - [ ] Teste no celular realizado.
@@ -53,6 +57,7 @@
 - [ ] Backup gerado.
 - [ ] Restore testado em ambiente seguro.
 - [ ] `APP_SEED_ENABLED=false` avaliado depois do setup inicial.
+- [ ] `APP_DEMO_DATA_ENABLED=false` mantido em producao real.
 - [ ] Backup externo planejado.
 - [ ] Nginx/HTTPS planejado para etapa futura.
 
