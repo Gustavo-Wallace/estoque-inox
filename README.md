@@ -116,7 +116,7 @@ O volume `postgres_data` mantem os dados entre reinicios do container.
 
 ## Preparacao para producao
 
-Esta etapa prepara o projeto para rodar com profile `prod`, Docker e PostgreSQL persistente. Ainda nao configura HTTPS, dominio, Nginx nem backup automatico.
+Esta etapa prepara o projeto para rodar com profile `prod`, Docker e PostgreSQL persistente. O fluxo recomendado e subir primeiro por IP/porta `8080` para teste inicial e depois configurar Nginx/HTTPS para acesso final pelo dominio.
 
 Crie um arquivo `.env` a partir do exemplo:
 
@@ -147,6 +147,14 @@ Depois acesse:
 ```text
 http://localhost:8080
 ```
+
+Em uma VPS, o primeiro teste pode ser feito temporariamente por:
+
+```text
+http://IP_DA_VPS:8080
+```
+
+Para uso real, o acesso final deve ser pelo dominio com HTTPS, usando Nginx na frente da aplicacao.
 
 Para acompanhar logs da aplicacao:
 
@@ -284,6 +292,8 @@ O seed nao cria vendas automaticamente para evitar duplicacao de movimentos e re
 - [Checklist pre-piloto](docs/checklist-pre-piloto.md)
 - [Deploy em VPS](docs/deploy-vps.md)
 - [Checklist de deploy](docs/checklist-deploy.md)
+- [Nginx, dominio e HTTPS](docs/nginx-https.md)
+- [Checklist HTTPS](docs/checklist-https.md)
 - [Backup automatico](docs/backup-automatico.md)
 
 ## Exportacoes CSV
