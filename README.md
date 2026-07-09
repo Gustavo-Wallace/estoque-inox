@@ -92,6 +92,8 @@ DB_USER=estoque_user
 DB_PASSWORD=estoque_pass
 ```
 
+Esses valores sao apenas para desenvolvimento local. Nao use `estoque_pass` em producao.
+
 Tambem e possivel subir banco e aplicacao juntos:
 
 ```bash
@@ -131,7 +133,7 @@ copy .env.example .env
 Edite o `.env` e troque principalmente:
 
 ```text
-DB_PASSWORD=troque_esta_senha
+DB_PASSWORD=troque_por_uma_senha_forte
 ```
 
 Para subir localmente simulando producao:
@@ -276,10 +278,13 @@ Produtos simulados:
 
 O seed nao cria vendas automaticamente para evitar duplicacao de movimentos e relatórios.
 
-## Roteiros de validacao
+## Documentacao operacional
 
 - [Roteiro de teste manual](docs/roteiro-teste-manual.md)
 - [Checklist pre-piloto](docs/checklist-pre-piloto.md)
+- [Deploy em VPS](docs/deploy-vps.md)
+- [Checklist de deploy](docs/checklist-deploy.md)
+- [Backup automatico](docs/backup-automatico.md)
 
 ## Exportacoes CSV
 
