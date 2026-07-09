@@ -173,6 +173,7 @@ DB_USER
 DB_PASSWORD
 SERVER_PORT
 APP_SEED_ENABLED
+BACKUP_KEEP_LAST
 ```
 
 `APP_SEED_ENABLED=true` permite criar os dados iniciais caso ainda nao existam. Depois do primeiro setup real, deixe `APP_SEED_ENABLED=false`. O seed nao sobrescreve usuarios existentes, mas as senhas padrao (`admin/admin123` e `vendedora/venda123`) devem ser trocadas antes de qualquer uso real.
@@ -312,35 +313,67 @@ A revisao atual reforcou pontos importantes do backend:
 - Movimentacoes que alteram produto usam lock pessimista para reduzir risco de estoque negativo em acessos simultaneos.
 - Relatorios usam quantidade ativa dos itens, ignorando itens totalmente cancelados no total liquido.
 
-## Backup manual do PostgreSQL
+## Backups do PostgreSQL
 
-Suba o PostgreSQL:
+Os scripts de backup usam o Docker Compose de producao (`docker-compose.prod.yml`) e o arquivo `.env`.
+
+Antes de gerar backup, confirme que os containers estao rodando:
 
 ```bash
-docker compose up -d postgres
+docker compose -f docker-compose.prod.yml --env-file .env up -d
 ```
 
-Gere um backup manual no Windows:
+Backup manual no Windows:
 
 ```cmd
 scripts\backup-postgres.bat
 ```
 
-O arquivo sera salvo em:
+Backup manual no Linux/VPS:
+
+```bash
+chmod +x scripts/backup-postgres.sh
+./scripts/backup-postgres.sh
+```
+
+Os backups ficam em:
 
 ```text
 backups/
 ```
 
-Os backups locais nao devem ser commitados. A pasta `backups/` esta no `.gitignore`.
+O formato padrao e `.dump`, gerado com `pg_dump -Fc`. A rotacao mantem apenas os ultimos backups locais conforme `BACKUP_KEEP_LAST` no `.env`:
 
-Para restaurar um backup em ambiente de desenvolvimento:
-
-```cmd
-scripts\restore-postgres.bat backups\NOME_DO_ARQUIVO.sql
+```text
+BACKUP_KEEP_LAST=14
 ```
 
-O restore pode sobrescrever dados do banco local. Para producao real, ainda sera necessario configurar backup automatico e armazenamento externo seguro.
+A rotacao so roda depois que o backup atual e gerado com sucesso.
+
+Restaurar no Windows:
+
+```cmd
+scripts\restore-postgres.bat backups\estoque_inox_2026-07-09_02-00-00.dump
+```
+
+Restaurar no Linux/VPS:
+
+```bash
+chmod +x scripts/restore-postgres.sh
+./scripts/restore-postgres.sh backups/estoque_inox_2026-07-09_02-00-00.dump
+```
+
+O restore de `.dump` usa `pg_restore --clean --if-exists --no-owner` e pode sobrescrever dados do banco. Os scripts tambem aceitam `.sql` antigo usando `psql`.
+
+Avisos importantes:
+
+- backups nao devem ser commitados;
+- backup local no mesmo servidor nao substitui backup externo;
+- antes de producao real, copie backups para fora da VPS;
+- nunca use `docker compose down -v` sem backup recente;
+- teste restore antes do piloto real.
+
+Mais detalhes sobre agendamento futuro: [Backup automatico](docs/backup-automatico.md).
 
 ## Teste manual de venda com multiplos itens
 

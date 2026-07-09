@@ -27,6 +27,9 @@ logs/
 
 # Database backups
 backups/
+backups/*.dump
+backups/*.sql
+backups/*.log
 
 # Environment
 .env

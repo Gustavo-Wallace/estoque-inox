@@ -1,13 +1,18 @@
 @echo off
 setlocal
 
-set CONTAINER=estoque-inox-postgres
-set DB_NAME=estoque_inox
-set DB_USER=estoque_user
+set COMPOSE_FILE=docker-compose.prod.yml
+set ENV_FILE=.env
 
 if "%~1"=="" (
     echo Informe o caminho do arquivo de backup.
-    echo Exemplo: scripts\restore-postgres.bat backups\estoque_inox_2026-07-08_1530.sql
+    echo Exemplo: scripts\restore-postgres.bat backups\estoque_inox_2026-07-09_02-00-00.dump
+    exit /b 1
+)
+
+if not exist "%ENV_FILE%" (
+    echo Arquivo %ENV_FILE% nao encontrado.
+    echo Crie um .env a partir do .env.example antes de restaurar backup.
     exit /b 1
 )
 
@@ -16,7 +21,8 @@ if not exist "%~1" (
     exit /b 1
 )
 
-echo ATENCAO: este restore pode sobrescrever dados do banco %DB_NAME%.
+echo ATENCAO: este restore usa --clean --if-exists e pode sobrescrever dados do banco.
+echo Arquivo: %~1
 set /p CONFIRMA=Digite RESTAURAR para continuar: 
 
 if not "%CONFIRMA%"=="RESTAURAR" (
@@ -24,13 +30,23 @@ if not "%CONFIRMA%"=="RESTAURAR" (
     exit /b 0
 )
 
+set EXT=%~x1
 echo Restaurando backup %~1...
 
-type "%~1" | docker exec -i %CONTAINER% psql -U %DB_USER% -d %DB_NAME%
+if /I "%EXT%"==".dump" (
+    type "%~1" | docker compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" exec -T postgres sh -c "pg_restore --clean --if-exists --no-owner -U $POSTGRES_USER -d $POSTGRES_DB"
+) else if /I "%EXT%"==".sql" (
+    type "%~1" | docker compose -f "%COMPOSE_FILE%" --env-file "%ENV_FILE%" exec -T postgres sh -c "psql -U $POSTGRES_USER -d $POSTGRES_DB"
+) else (
+    echo Extensao nao suportada: %EXT%
+    echo Use arquivos .dump ou .sql.
+    exit /b 1
+)
 
 if errorlevel 1 (
-    echo Erro ao restaurar backup. Verifique se o Docker esta rodando e se o container %CONTAINER% esta ativo.
+    echo Erro ao restaurar backup. Verifique se os containers de producao estao rodando.
     exit /b 1
 )
 
 echo Restore concluido com sucesso.
+exit /b 0
