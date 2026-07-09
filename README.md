@@ -153,6 +153,18 @@ Password:
 
 O H2 Console fica desabilitado no profile `postgres`.
 
+## Revisao de seguranca e regras criticas
+
+A revisao atual reforcou pontos importantes do backend:
+
+- `/admin/**` continua restrito a `ADMIN`, com pagina amigavel de acesso negado.
+- `/h2-console/**` continua liberado apenas no profile `dev`; no profile `postgres` fica bloqueado.
+- Usuarios inativos nao autenticam, senhas sao armazenadas com BCrypt e usernames sao normalizados em minusculo.
+- O ultimo `ADMIN` ativo nao pode ser removido ou desativado, e o admin logado nao remove o proprio acesso.
+- Venda, cancelamento e estoque validam quantidade, estoque suficiente, desconto e permissao no backend.
+- Movimentacoes que alteram produto usam lock pessimista para reduzir risco de estoque negativo em acessos simultaneos.
+- Relatorios usam quantidade ativa dos itens, ignorando itens totalmente cancelados no total liquido.
+
 ## Backup manual do PostgreSQL
 
 Suba o PostgreSQL:

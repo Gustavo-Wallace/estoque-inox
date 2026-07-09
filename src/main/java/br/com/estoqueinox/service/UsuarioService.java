@@ -80,6 +80,9 @@ public class UsuarioService {
         if (novaSenha == null || novaSenha.isBlank()) {
             throw new IllegalArgumentException("Informe a nova senha.");
         }
+        if (novaSenha.length() < 6) {
+            throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres.");
+        }
 
         Usuario usuario = buscarPorId(id);
         usuario.setSenha(passwordEncoder.encode(novaSenha));
@@ -102,7 +105,7 @@ public class UsuarioService {
 
     private void aplicarFormulario(Usuario usuario, UsuarioForm form) {
         usuario.setNome(form.getNome().trim());
-        usuario.setUsername(form.getUsername().trim());
+        usuario.setUsername(normalizar(form.getUsername()));
         usuario.setPerfil(form.getPerfil());
         usuario.setAtivo(Boolean.TRUE.equals(form.getAtivo()));
     }
@@ -134,6 +137,6 @@ public class UsuarioService {
         if (valor == null || valor.isBlank()) {
             return null;
         }
-        return valor.trim();
+        return valor.trim().toLowerCase();
     }
 }

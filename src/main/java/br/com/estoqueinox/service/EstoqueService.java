@@ -87,6 +87,7 @@ public class EstoqueService {
         ));
     }
 
+    @Transactional
     public void registrarBaixaPorVenda(Produto produto, Integer quantidade, String username) {
         if (quantidade == null || quantidade <= 0) {
             throw new IllegalArgumentException("A quantidade vendida deve ser maior que zero.");
@@ -111,10 +112,12 @@ public class EstoqueService {
         ));
     }
 
+    @Transactional
     public void registrarEstornoPorCancelamento(Produto produto, Integer quantidade, Long vendaId, String motivo, String username) {
         registrarEstornoPorCancelamento(produto, quantidade, vendaId, null, motivo, username);
     }
 
+    @Transactional
     public void registrarEstornoPorCancelamento(Produto produto, Integer quantidade, Long vendaId, Long itemId, String motivo, String username) {
         if (quantidade == null || quantidade <= 0) {
             throw new IllegalArgumentException("A quantidade cancelada deve ser maior que zero.");
@@ -136,7 +139,7 @@ public class EstoqueService {
     }
 
     private Produto buscarProduto(Long produtoId) {
-        return produtoRepository.findById(produtoId)
+        return produtoRepository.findByIdForUpdate(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto nao encontrado."));
     }
 

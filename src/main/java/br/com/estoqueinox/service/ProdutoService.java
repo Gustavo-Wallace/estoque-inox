@@ -90,6 +90,7 @@ public class ProdutoService {
 
     @Transactional
     public Produto salvar(ProdutoForm form) {
+        validarFormularioOuLancar(form, null);
         Produto produto = new Produto();
         aplicarFormulario(produto, form, true);
         return produtoRepository.save(produto);
@@ -97,6 +98,7 @@ public class ProdutoService {
 
     @Transactional
     public Produto atualizar(Long id, ProdutoForm form) {
+        validarFormularioOuLancar(form, id);
         Produto produto = buscarPorId(id);
         aplicarFormulario(produto, form, false);
         return produto;
@@ -124,6 +126,54 @@ public class ProdutoService {
         }
         produto.setEstoqueMinimo(form.getEstoqueMinimo());
         produto.setAtivo(Boolean.TRUE.equals(form.getAtivo()));
+    }
+
+    private void validarFormularioOuLancar(ProdutoForm form, Long produtoId) {
+        String codigo = normalizarCodigo(form.getCodigo());
+        if (codigo.isBlank()) {
+            throw new IllegalArgumentException("Informe o codigo do produto.");
+        }
+        if (form.getNome() == null || form.getNome().isBlank()) {
+            throw new IllegalArgumentException("Informe o nome do produto.");
+        }
+        if (form.getCategoriaId() == null) {
+            throw new IllegalArgumentException("Selecione uma categoria.");
+        }
+        if (form.getPrecoCusto() != null && form.getPrecoCusto().signum() < 0) {
+            throw new IllegalArgumentException("O preco de custo nao pode ser negativo.");
+        }
+        if (form.getPrecoVenda() == null || form.getPrecoVenda().signum() < 0) {
+            throw new IllegalArgumentException("O preco de venda nao pode ser negativo.");
+        }
+        if (form.getQuantidadeEstoque() == null || form.getQuantidadeEstoque() < 0) {
+            throw new IllegalArgumentException("A quantidade em estoque nao pode ser negativa.");
+        }
+        if (form.getEstoqueMinimo() == null || form.getEstoqueMinimo() < 0) {
+            throw new IllegalArgumentException("O estoque minimo nao pode ser negativo.");
+        }
+
+        boolean codigoEmUso = produtoId == null
+                ? produtoRepository.existsByCodigo(codigo)
+                : produtoRepository.existsByCodigoAndIdNot(codigo, produtoId);
+
+        if (codigoEmUso) {
+            throw new IllegalArgumentException("Ja existe um produto com este codigo.");
+        }
+
+        Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria nao encontrada."));
+
+        if (produtoId == null && !Boolean.TRUE.equals(categoria.getAtiva())) {
+            throw new IllegalArgumentException("Selecione uma categoria ativa.");
+        }
+
+        if (produtoId != null) {
+            Produto produto = buscarPorId(produtoId);
+            boolean categoriaAtual = produto.getCategoria().getId().equals(categoria.getId());
+            if (!categoriaAtual && !Boolean.TRUE.equals(categoria.getAtiva())) {
+                throw new IllegalArgumentException("Selecione uma categoria ativa.");
+            }
+        }
     }
 
     private String normalizarCodigo(String codigo) {

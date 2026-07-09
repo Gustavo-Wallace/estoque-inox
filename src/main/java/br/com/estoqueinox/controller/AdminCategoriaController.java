@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.com.estoqueinox.dto.CategoriaForm;
 import br.com.estoqueinox.model.Categoria;
 import br.com.estoqueinox.service.CategoriaService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @Controller
@@ -56,12 +57,17 @@ public class AdminCategoriaController {
     }
 
     @GetMapping("/admin/categorias/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-        Categoria categoria = categoriaService.buscarPorId(id);
-        model.addAttribute("categoriaForm", CategoriaForm.from(categoria));
-        model.addAttribute("titulo", "Editar categoria");
-        model.addAttribute("formAction", "/admin/categorias/" + id);
-        return "admin/categorias/form";
+    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Categoria categoria = categoriaService.buscarPorId(id);
+            model.addAttribute("categoriaForm", CategoriaForm.from(categoria));
+            model.addAttribute("titulo", "Editar categoria");
+            model.addAttribute("formAction", "/admin/categorias/" + id);
+            return "admin/categorias/form";
+        } catch (EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+            return "redirect:/admin/categorias";
+        }
     }
 
     @PostMapping("/admin/categorias/{id}")
@@ -78,15 +84,24 @@ public class AdminCategoriaController {
             return "admin/categorias/form";
         }
 
-        categoriaService.atualizar(id, form);
-        redirectAttributes.addFlashAttribute("sucesso", "Categoria atualizada com sucesso.");
-        return "redirect:/admin/categorias";
+        try {
+            categoriaService.atualizar(id, form);
+            redirectAttributes.addFlashAttribute("sucesso", "Categoria atualizada com sucesso.");
+            return "redirect:/admin/categorias";
+        } catch (EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+            return "redirect:/admin/categorias";
+        }
     }
 
     @PostMapping("/admin/categorias/{id}/alternar-status")
     public String alternarStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        categoriaService.alternarStatus(id);
-        redirectAttributes.addFlashAttribute("sucesso", "Status da categoria atualizado com sucesso.");
+        try {
+            categoriaService.alternarStatus(id);
+            redirectAttributes.addFlashAttribute("sucesso", "Status da categoria atualizado com sucesso.");
+        } catch (EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+        }
         return "redirect:/admin/categorias";
     }
 }

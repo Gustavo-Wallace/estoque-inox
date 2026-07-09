@@ -15,9 +15,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "venda_itens")
@@ -43,6 +45,7 @@ public class VendaItem {
     private Integer quantidade;
 
     @NotNull
+    @PositiveOrZero
     @Column(nullable = false, columnDefinition = "integer default 0")
     private Integer quantidadeCancelada = 0;
 
@@ -105,13 +108,17 @@ public class VendaItem {
     @PrePersist
     public void prePersist() {
         criadoEm = LocalDateTime.now();
-        if (quantidadeCancelada == null) {
-            quantidadeCancelada = 0;
-        }
+        validarEstado();
         recalcularValores();
         if (status == null) {
             status = StatusVendaItem.CONCLUIDO;
         }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        validarEstado();
+        recalcularValores();
     }
 
     public void cancelar(String username, String motivoCancelamento) {
@@ -134,6 +141,7 @@ public class VendaItem {
     }
 
     public void recalcularValores() {
+        validarEstado();
         precoOriginalUnitario = moeda(precoOriginalUnitario);
         descontoUnitario = moeda(descontoUnitario);
         precoFinalUnitario = moeda(precoOriginalUnitario.subtract(descontoUnitario));
@@ -239,6 +247,29 @@ public class VendaItem {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
         return valor.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void validarEstado() {
+        if (quantidade == null || quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade do item deve ser maior que zero.");
+        }
+        if (quantidadeCancelada == null) {
+            quantidadeCancelada = 0;
+        }
+        if (quantidadeCancelada < 0 || quantidadeCancelada > quantidade) {
+            throw new IllegalArgumentException("A quantidade cancelada do item e invalida.");
+        }
+        if (precoOriginalUnitario != null && precoOriginalUnitario.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O preco original do item nao pode ser negativo.");
+        }
+        if (descontoUnitario != null && descontoUnitario.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("O desconto do item nao pode ser negativo.");
+        }
+        if (precoOriginalUnitario != null
+                && descontoUnitario != null
+                && descontoUnitario.compareTo(precoOriginalUnitario) > 0) {
+            throw new IllegalArgumentException("O desconto do item nao pode ser maior que o preco original.");
+        }
     }
 
     private void atualizarStatusPelaQuantidade() {

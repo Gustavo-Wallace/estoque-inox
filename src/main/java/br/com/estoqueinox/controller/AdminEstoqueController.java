@@ -16,6 +16,7 @@ import br.com.estoqueinox.dto.EntradaEstoqueForm;
 import br.com.estoqueinox.model.Produto;
 import br.com.estoqueinox.service.EstoqueService;
 import br.com.estoqueinox.service.ProdutoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @Controller
@@ -66,7 +67,7 @@ public class AdminEstoqueController {
             );
             redirectAttributes.addFlashAttribute("sucesso", "Entrada de estoque registrada com sucesso.");
             return "redirect:/admin/estoque";
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | EntityNotFoundException ex) {
             result.reject("estoque.entrada.invalida", ex.getMessage());
             adicionarProdutos(model);
             return "admin/estoque/entrada";
@@ -104,7 +105,7 @@ public class AdminEstoqueController {
             );
             redirectAttributes.addFlashAttribute("sucesso", "Ajuste de estoque registrado com sucesso.");
             return "redirect:/admin/estoque";
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | EntityNotFoundException ex) {
             result.reject("estoque.ajuste.invalido", ex.getMessage());
             adicionarProdutos(model);
             return "admin/estoque/ajuste";
@@ -112,11 +113,16 @@ public class AdminEstoqueController {
     }
 
     @GetMapping("/admin/produtos/{id}/movimentacoes")
-    public String historicoProduto(@PathVariable Long id, Model model) {
-        Produto produto = produtoService.buscarPorId(id);
-        model.addAttribute("produto", produto);
-        model.addAttribute("movimentacoes", estoqueService.listarMovimentacoesDoProduto(id));
-        return "admin/estoque/historico-produto";
+    public String historicoProduto(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Produto produto = produtoService.buscarPorId(id);
+            model.addAttribute("produto", produto);
+            model.addAttribute("movimentacoes", estoqueService.listarMovimentacoesDoProduto(id));
+            return "admin/estoque/historico-produto";
+        } catch (EntityNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+            return "redirect:/admin/estoque";
+        }
     }
 
     private void adicionarProdutos(Model model) {

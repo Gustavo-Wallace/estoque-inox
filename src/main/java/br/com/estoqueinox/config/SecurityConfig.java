@@ -39,7 +39,16 @@ public class SecurityConfig {
                     }
                 })
                 .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                        .frameOptions(frameOptions -> {
+                            if (devProfile) {
+                                frameOptions.sameOrigin();
+                            } else {
+                                frameOptions.deny();
+                            }
+                        })
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/acesso-negado")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

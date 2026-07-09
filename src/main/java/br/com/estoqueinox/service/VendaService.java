@@ -190,7 +190,7 @@ public class VendaService {
     }
 
     private Produto buscarProdutoParaVenda(Long produtoId) {
-        Produto produto = produtoRepository.findById(produtoId)
+        Produto produto = produtoRepository.findByIdForUpdate(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto nao encontrado."));
 
         if (!Boolean.TRUE.equals(produto.getAtivo())) {
