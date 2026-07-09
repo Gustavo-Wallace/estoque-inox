@@ -3,6 +3,8 @@
 ## Antes do deploy
 
 - [ ] Docker Compose de producao testado localmente.
+- [ ] Simulacao de producao local limpa concluida.
+- [ ] `APP_DEMO_DATA_ENABLED=false` validado na simulacao local.
 - [ ] Backup manual funcionando.
 - [ ] Restore testado em ambiente seguro.
 - [ ] `.env.example` atualizado.

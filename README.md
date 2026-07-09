@@ -116,7 +116,7 @@ O volume `postgres_data` mantem os dados entre reinicios do container.
 
 ## Preparacao para producao
 
-Esta etapa prepara o projeto para rodar com profile `prod`, Docker e PostgreSQL persistente. O fluxo recomendado e subir primeiro por IP/porta `8080` para teste inicial e depois configurar Nginx/HTTPS para acesso final pelo dominio.
+Esta etapa prepara o projeto para rodar com profile `prod`, Docker e PostgreSQL persistente. O fluxo recomendado e testar primeiro uma producao local limpa, depois subir por IP/porta `8080` na VPS para teste inicial e, por fim, configurar Nginx/HTTPS para acesso final pelo dominio.
 
 Crie um arquivo `.env` a partir do exemplo:
 
@@ -155,6 +155,13 @@ http://IP_DA_VPS:8080
 ```
 
 Para uso real, o acesso final deve ser pelo dominio com HTTPS, usando Nginx na frente da aplicacao.
+
+Ordem recomendada antes do piloto real:
+
+1. Simular producao local limpa.
+2. Fazer deploy na VPS.
+3. Configurar Nginx/HTTPS.
+4. Rodar piloto real com dados conferidos e backup recente.
 
 Para acompanhar logs da aplicacao:
 
@@ -313,6 +320,8 @@ O seed nao cria vendas automaticamente para evitar duplicacao de movimentos e re
 
 - [Roteiro de teste manual](docs/roteiro-teste-manual.md)
 - [Checklist pre-piloto](docs/checklist-pre-piloto.md)
+- [Simulacao de producao local](docs/simulacao-producao-local.md)
+- [Checklist de simulacao de producao local](docs/checklist-simulacao-producao-local.md)
 - [Deploy em VPS](docs/deploy-vps.md)
 - [Checklist de deploy](docs/checklist-deploy.md)
 - [Nginx, dominio e HTTPS](docs/nginx-https.md)

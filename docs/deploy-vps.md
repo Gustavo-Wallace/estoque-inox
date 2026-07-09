@@ -14,6 +14,8 @@ O ambiente previsto usa:
 
 Ainda nao faz parte desta etapa configurar dominio, HTTPS, Nginx ou backup externo.
 
+Antes de executar este guia em uma VPS, rode a [simulacao de producao local](simulacao-producao-local.md). Ela valida o profile `prod`, PostgreSQL limpo, seed essencial e dados demonstrativos desabilitados.
+
 ## Pre-requisitos da VPS
 
 A VPS precisa ter:
