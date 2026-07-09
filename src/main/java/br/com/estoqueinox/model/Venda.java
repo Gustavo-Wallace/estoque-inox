@@ -129,6 +129,24 @@ public class Venda {
         valorTotal = valorTotalFinal;
     }
 
+    public BigDecimal getValorTotalOriginalAtivo() {
+        return itens.stream()
+                .map(VendaItem::getValorTotalOriginalAtivo)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getValorTotalDescontoAtivo() {
+        return itens.stream()
+                .map(VendaItem::getValorTotalDescontoAtivo)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getValorTotalFinalAtivo() {
+        return itens.stream()
+                .map(VendaItem::getValorTotalFinalAtivo)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     public Long getId() {
         return id;
     }

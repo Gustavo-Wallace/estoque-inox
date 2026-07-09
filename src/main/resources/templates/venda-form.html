@@ -3,19 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Nova Venda - Estoque Inox</title>
+    <title>Nova venda - Estoque Inox</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
 </head>
 <body class="bg-light">
 <main class="py-4">
     <div class="container">
-        <div class="mx-auto" style="max-width: 980px;">
+        <div class="mx-auto page-shell">
             <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-4">
                 <div>
                     <h1 class="display-6 fw-bold mb-1">Nova venda</h1>
-                    <p class="text-secondary mb-0">Adicione produtos e aplique desconto por item quando necessario.</p>
+                    <p class="text-secondary mb-0">Adicione os produtos, confira o total e registre a venda.</p>
                 </div>
-                <a th:href="@{/vendas}" class="btn btn-outline-primary btn-lg align-self-sm-start">Voltar</a>
+                <a th:href="@{/vendas}" class="btn btn-outline-primary btn-lg btn-touch align-self-sm-start">Voltar</a>
             </div>
 
             <form th:action="@{/vendas}" th:object="${vendaForm}" method="post" id="vendaForm" novalidate>
@@ -27,26 +28,28 @@
                 <div th:if="${#fields.hasErrors('itens')}" class="alert alert-danger" role="alert" th:errors="*{itens}"></div>
                 <div id="formAlert" class="alert alert-warning d-none" role="alert"></div>
 
-                <div class="card border-0 shadow-sm mb-3">
+                <section class="card border-0 shadow-sm mb-3">
                     <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Adicionar produto</h2>
                         <div class="row g-3">
                             <div class="col-12">
                                 <label for="produtoFiltro" class="form-label">Buscar produto</label>
-                                <input type="search" class="form-control form-control-lg" id="produtoFiltro" placeholder="Digite codigo ou nome">
+                                <input type="search" class="form-control form-control-lg search-input" id="produtoFiltro" placeholder="Codigo ou nome do produto">
+                                <div class="form-text">Use a busca para achar mais rapido no celular.</div>
                             </div>
 
                             <div class="col-12 col-lg-6">
                                 <label for="produtoId" class="form-label">Produto</label>
                                 <select class="form-select form-select-lg" id="produtoId">
-                                    <option value="">Selecione</option>
+                                    <option value="">Selecione um produto</option>
                                     <option th:each="produto : ${produtos}"
                                             th:value="${produto.id}"
                                             th:attr="data-codigo=${produto.codigo},data-nome=${produto.nome},data-estoque=${produto.quantidadeEstoque},data-preco=${produto.precoVenda}"
-                                            th:text="${produto.codigo + ' - ' + produto.nome + ' - Estoque: ' + produto.quantidadeEstoque + ' - ' + #numbers.formatCurrency(produto.precoVenda)}">
+                                            th:text="${produto.codigo + ' - ' + produto.nome + ' | Estoque: ' + produto.quantidadeEstoque + ' | ' + #numbers.formatCurrency(produto.precoVenda)}">
                                         Produto
                                     </option>
                                 </select>
-                                <div class="form-text">A lista mostra produtos ativos com estoque.</div>
+                                <div class="form-text">A lista mostra apenas produtos ativos com estoque.</div>
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-2">
@@ -55,61 +58,65 @@
                             </div>
 
                             <div class="col-12 col-sm-6 col-lg-2">
-                                <label for="descontoUnitario" class="form-label">Desc. unitario</label>
+                                <label for="descontoUnitario" class="form-label">Desconto por unidade</label>
                                 <input type="number" class="form-control form-control-lg" id="descontoUnitario" min="0" step="0.01" inputmode="decimal" value="0">
                             </div>
 
                             <div class="col-12 col-lg-2 d-grid align-items-end">
-                                <button type="button" class="btn btn-primary btn-lg" id="adicionarItem">Adicionar</button>
+                                <button type="button" class="btn btn-primary btn-lg btn-touch" id="adicionarItem">Adicionar produto</button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="card border-0 shadow-sm mb-3">
+                <section class="card border-0 shadow-sm mb-3">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                            <h2 class="h5 fw-bold mb-0">Itens da venda</h2>
+                            <h2 class="h5 fw-bold mb-0">Produtos adicionados</h2>
                             <strong class="fs-5" id="totalFinalVenda">R$ 0,00</strong>
                         </div>
 
                         <div id="itensVazios" class="text-center text-secondary py-3">
-                            Nenhum item adicionado.
+                            Nenhum produto adicionado ainda.
                         </div>
 
-                        <div id="itensVenda" class="d-grid gap-2"></div>
+                        <div id="itensVenda" class="mobile-card-list"></div>
                         <div id="itensHidden"></div>
+                    </div>
+                </section>
 
-                        <div class="border-top mt-4 pt-3">
-                            <div class="row g-2">
-                                <div class="col-6 text-secondary">Total original</div>
-                                <div class="col-6 text-end fw-semibold" id="totalOriginalVenda">R$ 0,00</div>
-                                <div class="col-6 text-secondary">Desconto total</div>
-                                <div class="col-6 text-end fw-semibold" id="totalDescontoVenda">R$ 0,00</div>
-                                <div class="col-6 text-secondary">Total final</div>
-                                <div class="col-6 text-end fw-bold fs-5" id="totalFinalResumo">R$ 0,00</div>
-                            </div>
+                <section class="card border-0 shadow-sm summary-panel mb-3">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Resumo da venda</h2>
+                        <div class="row g-2">
+                            <div class="col-6 text-secondary">Total original</div>
+                            <div class="col-6 text-end fw-semibold" id="totalOriginalVenda">R$ 0,00</div>
+                            <div class="col-6 text-secondary">Desconto total</div>
+                            <div class="col-6 text-end fw-semibold" id="totalDescontoVenda">R$ 0,00</div>
+                            <div class="col-6 text-secondary">Total final</div>
+                            <div class="col-6 text-end fw-bold fs-4" id="totalFinalResumo">R$ 0,00</div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="card border-0 shadow-sm">
+                <section class="card border-0 shadow-sm mb-3">
                     <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Finalizar</h2>
                         <div class="mb-4">
                             <label for="formaPagamento" class="form-label">Forma de pagamento</label>
                             <select th:field="*{formaPagamento}" class="form-select form-select-lg" th:errorclass="is-invalid" id="formaPagamento" required>
                                 <option value="">Selecione</option>
-                                <option th:each="forma : ${formasPagamento}" th:value="${forma}" th:text="${forma}">PIX</option>
+                                <option th:each="forma : ${formasPagamento}" th:value="${forma}" th:text="${forma.descricao}">Pix</option>
                             </select>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('formaPagamento')}" th:errors="*{formaPagamento}"></div>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg py-3">Registrar venda</button>
-                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-lg">Painel</a>
+                            <button type="submit" class="btn btn-success btn-lg btn-touch py-3">Registrar venda</button>
+                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-lg btn-touch">Painel</a>
                         </div>
                     </div>
-                </div>
+                </section>
             </form>
         </div>
     </div>
@@ -161,21 +168,22 @@
                 totalDesconto += item.valorDesconto;
                 totalFinal += item.valorFinal;
 
-                const linha = document.createElement('div');
-                linha.className = 'border rounded p-3 bg-white';
+                const linha = document.createElement('article');
+                linha.className = 'mobile-sale-item';
                 linha.innerHTML = `
-                    <div class="d-flex justify-content-between gap-3">
+                    <div class="d-flex justify-content-between gap-3 mb-3">
                         <div>
                             <p class="fw-bold mb-1">${item.codigo}</p>
-                            <p class="mb-2">${item.nome}</p>
-                            <p class="small text-secondary mb-1">${item.quantidade} x ${moeda.format(item.precoOriginal)} | desc. ${moeda.format(item.desconto)}</p>
-                            <p class="small mb-0">Final unit.: <strong>${moeda.format(item.precoFinal)}</strong></p>
+                            <p class="mb-0">${item.nome}</p>
                         </div>
-                        <div class="text-end">
-                            <span class="small text-secondary d-block">Subtotal</span>
-                            <strong class="d-block mb-2">${moeda.format(item.valorFinal)}</strong>
-                            <button type="button" class="btn btn-outline-danger btn-sm" data-remover="${index}">Remover</button>
-                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm align-self-start" data-remover="${index}">Remover</button>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-6"><span class="metric-label">Quantidade</span><span class="metric-value">${item.quantidade}</span></div>
+                        <div class="col-6"><span class="metric-label">Preco original</span><span class="metric-value">${moeda.format(item.precoOriginal)}</span></div>
+                        <div class="col-6"><span class="metric-label">Desconto</span><span class="metric-value">${moeda.format(item.desconto)}</span></div>
+                        <div class="col-6"><span class="metric-label">Preco final</span><span class="metric-value">${moeda.format(item.precoFinal)}</span></div>
+                        <div class="col-12"><span class="metric-label">Subtotal</span><span class="metric-value fs-5">${moeda.format(item.valorFinal)}</span></div>
                     </div>
                 `;
                 itensVenda.appendChild(linha);
@@ -274,7 +282,7 @@
             mostrarAlerta('');
             if (itens.length === 0) {
                 event.preventDefault();
-                mostrarAlerta('Adicione pelo menos um item antes de registrar a venda.');
+                mostrarAlerta('Adicione pelo menos um produto antes de registrar a venda.');
             }
         });
 

@@ -1,7 +1,17 @@
 package br.com.estoqueinox.model;
 
 public enum StatusVendaItem {
-    CONCLUIDO,
-    PARCIALMENTE_CANCELADO,
-    CANCELADO
+    CONCLUIDO("Concluido"),
+    PARCIALMENTE_CANCELADO("Parcialmente cancelado"),
+    CANCELADO("Cancelado");
+
+    private final String descricao;
+
+    StatusVendaItem(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
 }

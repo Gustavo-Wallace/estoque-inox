@@ -1,0 +1,76 @@
+body {
+    color: #202124;
+}
+
+.page-shell {
+    max-width: 980px;
+}
+
+.tap-card {
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 .25rem .875rem rgba(16, 24, 40, .08);
+    min-height: 112px;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.tap-card:active {
+    transform: scale(.99);
+}
+
+.tap-card .card-body {
+    padding: 1.25rem;
+}
+
+.btn-touch {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-badge {
+    border-radius: 999px;
+    font-weight: 700;
+    padding: .45rem .7rem;
+}
+
+.summary-panel {
+    position: static;
+}
+
+.mobile-card-list {
+    display: grid;
+    gap: .875rem;
+}
+
+.mobile-sale-item {
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 8px;
+    background: #fff;
+    padding: 1rem;
+}
+
+.metric-label {
+    color: #6c757d;
+    display: block;
+    font-size: .85rem;
+}
+
+.metric-value {
+    font-weight: 700;
+}
+
+.search-input {
+    min-height: 50px;
+}
+
+@media (min-width: 768px) {
+    .tap-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .summary-panel {
+        position: static;
+    }
+}
