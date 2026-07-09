@@ -5,6 +5,7 @@ import java.text.Normalizer;
 import java.util.Locale;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -23,21 +24,27 @@ public class DataLoader implements CommandLineRunner {
     private final ProdutoRepository produtoRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final boolean seedEnabled;
 
     public DataLoader(
             CategoriaRepository categoriaRepository,
             ProdutoRepository produtoRepository,
             UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            @Value("${app.seed.enabled:true}") boolean seedEnabled
     ) {
         this.categoriaRepository = categoriaRepository;
         this.produtoRepository = produtoRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.seedEnabled = seedEnabled;
     }
 
     @Override
     public void run(String... args) {
+        if (!seedEnabled) {
+            return;
+        }
         criarCategoriasIniciais();
         criarProdutosSimulados();
         criarUsuariosIniciais();

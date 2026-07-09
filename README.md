@@ -17,6 +17,12 @@ O projeto ja possui base Spring Boot com Thymeleaf, autenticacao persistida em b
 - Bootstrap via CDN
 - Docker Compose
 
+## Profiles disponiveis
+
+- `dev`: profile padrao, usa H2 em memoria e habilita o H2 Console.
+- `postgres`: usa PostgreSQL local, com valores padrao de desenvolvimento por variaveis de ambiente.
+- `prod`: usa PostgreSQL obrigatorio, sem H2 Console, sem SQL verboso e sem senhas padrao no arquivo de configuracao.
+
 ## Como rodar localmente com H2
 
 No Windows:
@@ -105,6 +111,84 @@ taskkill /F /PID 7864
 ```
 
 O volume `postgres_data` mantem os dados entre reinicios do container.
+
+## Preparacao para producao
+
+Esta etapa prepara o projeto para rodar com profile `prod`, Docker e PostgreSQL persistente. Ainda nao configura HTTPS, dominio, Nginx nem backup automatico.
+
+Crie um arquivo `.env` a partir do exemplo:
+
+```bash
+cp .env.example .env
+```
+
+No Windows, se preferir:
+
+```cmd
+copy .env.example .env
+```
+
+Edite o `.env` e troque principalmente:
+
+```text
+DB_PASSWORD=troque_esta_senha
+```
+
+Para subir localmente simulando producao:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+```
+
+Depois acesse:
+
+```text
+http://localhost:8080
+```
+
+Para acompanhar logs da aplicacao:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f app
+```
+
+Para parar sem apagar dados:
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+Nao use `docker compose down -v` a menos que queira apagar o volume do PostgreSQL e perder os dados locais desse ambiente.
+
+No compose de producao local, o banco nao expoe a porta `5432` para fora. Em producao real, o ideal tambem e nao expor o PostgreSQL diretamente para a internet.
+
+O profile `prod` usa:
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+DB_HOST
+DB_PORT
+DB_NAME
+DB_USER
+DB_PASSWORD
+SERVER_PORT
+APP_SEED_ENABLED
+```
+
+`APP_SEED_ENABLED=true` permite criar os dados iniciais caso ainda nao existam. Depois do primeiro setup real, deixe `APP_SEED_ENABLED=false`. O seed nao sobrescreve usuarios existentes, mas as senhas padrao (`admin/admin123` e `vendedora/venda123`) devem ser trocadas antes de qualquer uso real.
+
+O `ddl-auto=update` continua ativo por enquanto para facilitar esta fase. Antes de producao definitiva, o ideal e migrar para Flyway ou Liquibase.
+
+Antes de producao real:
+
+- trocar todas as senhas padrao;
+- criar usuarias reais;
+- conferir produtos e estoque inicial;
+- configurar HTTPS, dominio e Nginx;
+- configurar backup automatico;
+- testar restore de backup;
+- confirmar que `/h2-console` nao abre em `prod`;
+- fazer backup antes de testes reais.
 
 ## Rotas principais
 
