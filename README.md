@@ -129,6 +129,12 @@ O volume `postgres_data` mantem os dados entre reinicios do container.
 - `/admin/relatorios/produtos-mais-vendidos`: produtos mais vendidos para `ADMIN`
 - `/admin/relatorios/estoque-baixo`: produtos com estoque baixo para `ADMIN`
 - `/admin/relatorios/vendedoras`: vendas agrupadas por vendedora para `ADMIN`
+- `/admin/exportacoes`: exportacoes CSV para `ADMIN`
+- `/admin/exportacoes/produtos`: CSV de produtos para `ADMIN`
+- `/admin/exportacoes/estoque-baixo`: CSV de estoque baixo para `ADMIN`
+- `/admin/exportacoes/vendas`: CSV de vendas por periodo para `ADMIN`
+- `/admin/exportacoes/movimentacoes-estoque`: CSV de movimentacoes por periodo para `ADMIN`
+- `/admin/exportacoes/produtos-mais-vendidos`: CSV de produtos mais vendidos por periodo para `ADMIN`
 - `/admin/usuarios`: gerenciamento de usuarios para `ADMIN`
 - `/admin/usuarios/novo`: cadastro de usuario para `ADMIN`
 - `/admin/usuarios/{id}/editar`: edicao de usuario para `ADMIN`
@@ -189,6 +195,26 @@ O seed nao cria vendas automaticamente para evitar duplicacao de movimentos e re
 
 - [Roteiro de teste manual](docs/roteiro-teste-manual.md)
 - [Checklist pre-piloto](docs/checklist-pre-piloto.md)
+
+## Exportacoes CSV
+
+As exportacoes administrativas ficam em:
+
+```text
+http://localhost:8080/admin/exportacoes
+```
+
+Apenas usuarias `ADMIN` podem acessar. Os arquivos usam CSV em UTF-8, separador `;` e podem ser abertos no Excel ou Google Sheets.
+
+Exportacoes disponiveis:
+
+- Produtos
+- Estoque baixo
+- Vendas por periodo
+- Movimentacoes de estoque por periodo
+- Produtos mais vendidos por periodo
+
+Quando o periodo nao for informado, o sistema usa o dia atual.
 
 ## Revisao de seguranca e regras criticas
 

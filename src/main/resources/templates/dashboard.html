@@ -80,6 +80,15 @@
                 </div>
 
                 <div class="col-12 col-md-6" th:if="${isAdmin}">
+                    <a th:href="@{/admin/exportacoes}" class="card tap-card text-decoration-none h-100">
+                        <div class="card-body">
+                            <h2 class="h5 text-dark mb-2">Exportacoes</h2>
+                            <p class="text-secondary mb-0">Baixar dados administrativos em CSV.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-6" th:if="${isAdmin}">
                     <a th:href="@{/admin/usuarios}" class="card tap-card text-decoration-none h-100">
                         <div class="card-body">
                             <h2 class="h5 text-dark mb-2">Usuarios</h2>

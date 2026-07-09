@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Exportacoes - Estoque Inox</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="py-4">
+    <div class="container">
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-4">
+            <div>
+                <h1 class="fw-bold mb-1">Exportacoes</h1>
+                <p class="text-secondary mb-0">Baixe dados administrativos em CSV.</p>
+            </div>
+            <div class="d-grid d-sm-flex gap-2">
+                <a th:href="@{/admin/relatorios}" class="btn btn-outline-primary btn-lg">Relatorios</a>
+                <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-lg">Painel</a>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h2 class="h5 fw-bold mb-2">Produtos</h2>
+                        <p class="text-secondary mb-4">Lista completa de produtos, precos, estoque e status.</p>
+                        <a th:href="@{/admin/exportacoes/produtos}" class="btn btn-primary btn-lg btn-touch mt-auto">
+                            Exportar CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h2 class="h5 fw-bold mb-2">Estoque baixo</h2>
+                        <p class="text-secondary mb-4">Produtos com estoque atual menor ou igual ao minimo.</p>
+                        <a th:href="@{/admin/exportacoes/estoque-baixo}" class="btn btn-primary btn-lg btn-touch mt-auto">
+                            Exportar CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-2">Vendas por periodo</h2>
+                        <p class="text-secondary">Totais, status e quantidades ativas/canceladas.</p>
+                        <form th:action="@{/admin/exportacoes/vendas}" method="get" class="d-grid gap-3">
+                            <div>
+                                <label for="dataInicialVendas" class="form-label">Data inicial</label>
+                                <input type="date" id="dataInicialVendas" name="dataInicial" class="form-control form-control-lg"
+                                       th:value="${periodo.dataInicial}">
+                            </div>
+                            <div>
+                                <label for="dataFinalVendas" class="form-label">Data final</label>
+                                <input type="date" id="dataFinalVendas" name="dataFinal" class="form-control form-control-lg"
+                                       th:value="${periodo.dataFinal}">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-touch">Exportar CSV</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-2">Movimentacoes de estoque</h2>
+                        <p class="text-secondary">Entradas, ajustes, vendas e cancelamentos.</p>
+                        <form th:action="@{/admin/exportacoes/movimentacoes-estoque}" method="get" class="d-grid gap-3">
+                            <div>
+                                <label for="dataInicialMovimentacoes" class="form-label">Data inicial</label>
+                                <input type="date" id="dataInicialMovimentacoes" name="dataInicial" class="form-control form-control-lg"
+                                       th:value="${periodo.dataInicial}">
+                            </div>
+                            <div>
+                                <label for="dataFinalMovimentacoes" class="form-label">Data final</label>
+                                <input type="date" id="dataFinalMovimentacoes" name="dataFinal" class="form-control form-control-lg"
+                                       th:value="${periodo.dataFinal}">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-touch">Exportar CSV</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-2">Produtos mais vendidos</h2>
+                        <p class="text-secondary">Quantidade vendida ativa e valores liquidos.</p>
+                        <form th:action="@{/admin/exportacoes/produtos-mais-vendidos}" method="get" class="d-grid gap-3">
+                            <div>
+                                <label for="dataInicialProdutos" class="form-label">Data inicial</label>
+                                <input type="date" id="dataInicialProdutos" name="dataInicial" class="form-control form-control-lg"
+                                       th:value="${periodo.dataInicial}">
+                            </div>
+                            <div>
+                                <label for="dataFinalProdutos" class="form-label">Data final</label>
+                                <input type="date" id="dataFinalProdutos" name="dataFinal" class="form-control form-control-lg"
+                                       th:value="${periodo.dataFinal}">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-touch">Exportar CSV</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
